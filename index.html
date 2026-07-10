@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Суфлёр">
+<meta name="theme-color" content="#0e1013">
+<title>Суфлёр — тексты песен для выступлений</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+/* ============================================================
+   СУФЛЁР v1 — сценический помощник вокалиста
+   Тёмная сцена по умолчанию, iPhone-first (375×812, safe areas)
+   ============================================================ */
+:root{
+  --bg:      #0e1013;
+  --bg-2:    #16191e;
+  --card:    #1c2027;
+  --card-2:  #242933;
+  --line:    #303743;
+  --ink:     #f3f0e8;   /* тёплый белый — легче глазам в темноте */
+  --ink-soft:#a8a294;
+  --ink-faint:#6b675e;
+  --accent:  #ffb454;   /* янтарь — не слепит со сцены */
+  --accent-ink:#1a1204;
+  --accent-sl:#3a2c14;
+  --play:    #7ee0a3;   /* зелёный — автопрокрутка активна */
+  --danger:  #ff7a70;
+  --tag:     #8ec1ff;   /* метки [Припев] */
+  --radius:  16px;
+  --radius-s:12px;
+  --t-fast:.15s; --t-med:.26s;
+  --ease:cubic-bezier(.22,1,.36,1);
+  --ff:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  --sat:env(safe-area-inset-top,0px);
+  --sab:env(safe-area-inset-bottom,0px);
+  --sal:env(safe-area-inset-left,0px);
+  --sar:env(safe-area-inset-right,0px);
+}
+html[data-theme="light"]{
+  --bg:#f6f3ec; --bg-2:#efeadf; --card:#ffffff; --card-2:#f4efe6;
+  --line:#ddd6c8; --ink:#22201b; --ink-soft:#6f6a5e; --ink-faint:#a49d8e;
+  --accent:#c97a10; --accent-ink:#fff; --accent-sl:#f7e5c8;
+  --play:#1f8a4c; --danger:#c8372c; --tag:#2f6fd0;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+html{height:100%;}
+body{
+  font-family:var(--ff); background:var(--bg); color:var(--ink);
+  font-size:16px; line-height:1.5;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  min-height:100vh; min-height:100dvh;
+  overscroll-behavior:none;             /* без резиновых отскоков на сцене */
+}
+button,input,textarea,select{font-family:inherit;touch-action:manipulation;}
+button{cursor:pointer;}
+:focus-visible{outline:2.5px solid var(--accent);outline-offset:2px;border-radius:8px;}
+input:focus-visible,textarea:focus-visible{outline:none;}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important;}
+}
+/* иконки */
+.isv{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto;}
+
+/* ---------- ЭКРАНЫ ---------- */
+.view{display:none;min-height:100vh;min-height:100dvh;}
+.view.on{display:block;}
+.wrap{max-width:640px;margin:0 auto;padding:calc(var(--sat) + 14px) calc(var(--sar) + 16px) calc(var(--sab) + 24px) calc(var(--sal) + 16px);}
+
+/* ---------- ШАПКА СПИСКОВ ---------- */
+.tophead{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.tophead .back{width:44px;height:44px;border:0;background:var(--card);border-radius:12px;color:var(--ink);
+  display:flex;align-items:center;justify-content:center;}
+.tophead .back:active{transform:scale(.95);}
+.tophead h1{font-size:22px;font-weight:800;letter-spacing:-.02em;margin:0;flex:1;min-width:0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tophead .act{height:44px;padding:0 14px;border:0;background:var(--accent);color:var(--accent-ink);
+  border-radius:12px;font-weight:700;font-size:14px;display:flex;align-items:center;gap:7px;}
+.tophead .act:active{transform:scale(.97);}
+.tophead .act.ghost{background:var(--card);color:var(--ink);}
+
+.subtitle{color:var(--ink-soft);font-size:13px;margin:-10px 0 16px;}
+
+/* ---------- КАРТОЧКИ СПИСКОВ ---------- */
+.list{display:flex;flex-direction:column;gap:10px;}
+.item{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);
+  border-radius:var(--radius);padding:14px 15px;min-height:64px;}
+.item:active{background:var(--card-2);}
+.item .main{flex:1;min-width:0;}
+.item .t{font-size:16px;font-weight:700;letter-spacing:-.01em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.item .s{font-size:12.5px;color:var(--ink-soft);margin-top:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.item .go{color:var(--ink-faint);}
+.item .num{width:28px;height:28px;flex:0 0 auto;border-radius:9px;background:var(--card-2);
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--accent);}
+.iconbtn{width:44px;height:44px;flex:0 0 auto;border:0;background:transparent;color:var(--ink-faint);
+  border-radius:10px;display:flex;align-items:center;justify-content:center;}
+.iconbtn:active{background:var(--card-2);color:var(--ink);}
+.iconbtn.danger:active{color:var(--danger);}
+.play-set{width:52px;height:52px;flex:0 0 auto;border:0;border-radius:14px;background:var(--accent);color:var(--accent-ink);
+  display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px -6px rgba(255,180,84,.45);}
+.play-set:active{transform:scale(.94);}
+html[data-theme="light"] .play-set{box-shadow:0 6px 18px -6px rgba(201,122,16,.5);}
+
+.empty{border:1.5px dashed var(--line);border-radius:var(--radius);padding:28px 18px;text-align:center;
+  color:var(--ink-soft);font-size:14px;line-height:1.55;}
+.empty b{color:var(--ink);}
+
+.addtile{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
+  border:1.5px dashed var(--line);background:transparent;color:var(--accent);
+  font-size:15px;font-weight:700;padding:14px;border-radius:var(--radius);min-height:54px;margin-top:10px;}
+.addtile:active{background:var(--accent-sl);}
+
+/* ---------- ГЛАВНАЯ ---------- */
+.hero{display:flex;align-items:center;gap:14px;padding:6px 2px 20px;}
+.hero .mark{width:52px;height:52px;border-radius:15px;flex:0 0 auto;color:var(--accent-ink);
+  background:linear-gradient(145deg,var(--accent),#ff8f3d);display:flex;align-items:center;justify-content:center;
+  box-shadow:0 8px 22px -8px rgba(255,150,60,.5);}
+.hero h1{font-size:24px;font-weight:800;letter-spacing:-.02em;margin:0;}
+.hero p{margin:3px 0 0;font-size:13px;color:var(--ink-soft);}
+.sect{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);
+  margin:22px 4px 10px;}
+.homegrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+.homegrid .hbtn{display:flex;flex-direction:column;align-items:flex-start;gap:10px;background:var(--card);
+  border:1px solid var(--line);border-radius:var(--radius);padding:14px;min-height:78px;color:var(--ink);
+  font-size:14px;font-weight:700;border-width:1px;text-align:left;}
+.homegrid .hbtn:active{background:var(--card-2);}
+.homegrid .hbtn .isv{color:var(--accent);}
+.homegrid .hbtn .note{font-size:11.5px;color:var(--ink-soft);font-weight:500;margin-top:-6px;}
+
+/* баннер неправильного открытия (QuickLook) */
+.warnbox{display:none;background:#4a1f12;border:1.5px solid #a3532f;color:#ffd9c4;
+  border-radius:var(--radius);padding:14px 15px;font-size:13.5px;line-height:1.5;margin-bottom:14px;}
+.warnbox.show{display:block;}
+.warnbox b{color:#ffedd9;}
+html[data-theme="light"] .warnbox{background:#fbe3d4;border-color:#e0956a;color:#7a3c14;}
+html[data-theme="light"] .warnbox b{color:#5e2c0a;}
+
+/* ---------- ФОРМЫ ---------- */
+label{display:block;font-size:11.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--ink-soft);margin:0 0 6px 2px;}
+input[type="text"],textarea{
+  width:100%;font-size:16px;color:var(--ink);background:var(--card);
+  border:1.5px solid var(--line);border-radius:var(--radius-s);padding:12px 13px;
+  -webkit-appearance:none;appearance:none;transition:border-color var(--t-fast);
+}
+input[type="text"]:focus,textarea:focus{border-color:var(--accent);}
+input::placeholder,textarea::placeholder{color:var(--ink-faint);}
+textarea{resize:vertical;min-height:46vh;line-height:1.6;}
+.field{margin-bottom:14px;}
+.formhint{font-size:12.5px;color:var(--ink-soft);margin-top:7px;line-height:1.5;}
+.btnrow{display:flex;gap:10px;margin-top:6px;}
+.btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;border:0;
+  border-radius:var(--radius-s);font-size:15px;font-weight:800;padding:15px;min-height:54px;}
+.btn:active{transform:scale(.98);}
+.btn-primary{background:var(--accent);color:var(--accent-ink);}
+.btn-ghost{background:var(--card);color:var(--ink);border:1.5px solid var(--line);}
+.btn-danger{background:transparent;color:var(--danger);border:1.5px solid var(--danger);}
+
+/* поиск */
+.search{position:relative;margin-bottom:12px;}
+.search .isv{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:var(--ink-faint);pointer-events:none;}
+.search input{padding-left:40px;}
+
+/* чекбокс-ряды выбора песен в сэт */
+.pickrow{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);
+  border-radius:var(--radius-s);padding:12px 14px;min-height:56px;}
+.pickrow.sel{border-color:var(--accent);background:var(--accent-sl);}
+.pickrow .cb{width:26px;height:26px;flex:0 0 auto;border-radius:8px;border:2px solid var(--line);
+  display:flex;align-items:center;justify-content:center;color:transparent;background:var(--bg-2);}
+.pickrow.sel .cb{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
+.pickrow .cb .isv{width:15px;height:15px;stroke-width:3;}
+.pickrow .t{flex:1;min-width:0;font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pickrow .ord{font-size:13px;font-weight:800;color:var(--accent);min-width:22px;text-align:right;}
+
+/* сортировка внутри сэта */
+.ordrow{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);
+  border-radius:var(--radius-s);padding:10px 12px;min-height:58px;}
+.ordrow .t{flex:1;min-width:0;font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ordrow .mv{width:44px;height:44px;border:0;background:var(--card-2);border-radius:10px;color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;}
+.ordrow .mv:active{background:var(--accent-sl);color:var(--accent);}
+.ordrow .mv[disabled]{opacity:.3;}
+
+/* ---------- СЦЕНА (режим выступления) ---------- */
+#viewStage{background:var(--bg);}
+.stage{position:fixed;inset:0;display:flex;flex-direction:column;}
+.stage-head{
+  flex:0 0 auto;display:flex;align-items:center;gap:10px;
+  padding:calc(var(--sat) + 8px) calc(var(--sar) + 10px) 8px calc(var(--sal) + 10px);
+  background:linear-gradient(to bottom,var(--bg) 65%,transparent);
+  position:relative;z-index:5;
+}
+.stage-head .xbtn{width:44px;height:44px;border:0;border-radius:12px;background:var(--card);color:var(--ink);
+  display:flex;align-items:center;justify-content:center;}
+.stage-head .ttl{flex:1;min-width:0;text-align:center;}
+.stage-head .ttl .t{font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.stage-head .ttl .c{font-size:12px;color:var(--accent);font-weight:700;margin-top:1px;}
+.stage-head .listbtn{width:44px;height:44px;border:0;border-radius:12px;background:var(--card);color:var(--ink);
+  display:flex;align-items:center;justify-content:center;position:relative;}
+
+.stage-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative;
+  padding:6px calc(var(--sar) + 20px) 40vh calc(var(--sal) + 20px);
+  user-select:none;-webkit-user-select:none;}
+.lyrics{max-width:640px;margin:0 auto;font-size:var(--lyr,24px);line-height:1.55;font-weight:600;
+  letter-spacing:.01em;white-space:pre-wrap;word-wrap:break-word;}
+.lyrics .tagline{display:block;width:max-content;max-width:100%;font-size:.62em;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--tag);background:rgba(142,193,255,.12);border-radius:8px;padding:2px 10px;margin:14px 0 6px;}
+html[data-theme="light"] .lyrics .tagline{background:rgba(47,111,208,.1);}
+.lyrics .blank{display:block;height:.6em;}
+
+/* стрелки-зоны листания по краям убраны в пользу нижней панели + свайпов */
+
+.stage-foot{
+  flex:0 0 auto;display:flex;align-items:center;gap:8px;
+  padding:10px calc(var(--sar) + 12px) calc(var(--sab) + 10px) calc(var(--sal) + 12px);
+  background:linear-gradient(to top,var(--bg) 70%,transparent);
+  position:relative;z-index:5;
+}
+.sfbtn{height:56px;border:0;border-radius:14px;background:var(--card);color:var(--ink);
+  display:flex;align-items:center;justify-content:center;gap:6px;font-weight:800;font-size:14px;}
+.sfbtn:active{transform:scale(.96);background:var(--card-2);}
+.sfbtn.nav{flex:1.2;}
+.sfbtn.sq{width:56px;flex:0 0 auto;}
+.sfbtn.playing{background:var(--play);color:#06220f;}
+.sfbtn[disabled]{opacity:.35;}
+.speedwrap{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
+  background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 16px;width:min(320px,86vw);
+  box-shadow:0 14px 40px -12px rgba(0,0,0,.6);}
+.speedwrap.show{display:block;}
+.speedwrap .lbl{display:flex;justify-content:space-between;font-size:12px;font-weight:800;color:var(--ink-soft);
+  text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;}
+.speedwrap input[type="range"]{width:100%;accent-color:var(--accent);height:34px;}
+
+/* шторка сэта на сцене */
+.setsheet{position:fixed;inset:0;z-index:40;pointer-events:none;}
+.setsheet .dim{position:absolute;inset:0;background:rgba(0,0,0,.55);opacity:0;transition:opacity var(--t-med);}
+.setsheet .panel{position:absolute;top:0;right:0;bottom:0;width:min(320px,84vw);background:var(--bg-2);
+  border-left:1px solid var(--line);transform:translateX(102%);transition:transform var(--t-med) var(--ease);
+  padding:calc(var(--sat) + 14px) 14px calc(var(--sab) + 14px);overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.setsheet.show{pointer-events:auto;}
+.setsheet.show .dim{opacity:1;}
+.setsheet.show .panel{transform:translateX(0);}
+.setsheet h3{margin:0 0 12px;font-size:15px;font-weight:800;}
+.setsheet .row{display:flex;align-items:center;gap:10px;padding:12px 10px;border-radius:12px;min-height:52px;}
+.setsheet .row.cur{background:var(--accent-sl);}
+.setsheet .row .n{width:24px;font-size:13px;font-weight:800;color:var(--accent);text-align:right;flex:0 0 auto;}
+.setsheet .row .t{flex:1;min-width:0;font-weight:700;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.setsheet .row:active{background:var(--card);}
+
+/* ---------- ТОСТ ---------- */
+.toast{position:fixed;left:50%;transform:translateX(-50%) translateY(16px);bottom:calc(var(--sab) + 20px);
+  background:var(--ink);color:var(--bg);font-size:13.5px;font-weight:700;padding:12px 18px;border-radius:12px;
+  opacity:0;pointer-events:none;transition:all var(--t-med) var(--ease);z-index:9999;max-width:86vw;text-align:center;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ---------- МОДАЛКА ПОДТВЕРЖДЕНИЯ ---------- */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity var(--t-fast);z-index:1000;padding:20px;}
+.modal-bg.show{opacity:1;pointer-events:auto;}
+.modal{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px 18px;width:min(340px,100%);}
+.modal .msg{font-size:15px;font-weight:600;line-height:1.5;margin-bottom:16px;}
+
+/* переключатель темы в шапке главной */
+.themebtn{width:44px;height:44px;border:0;border-radius:12px;background:var(--card);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+
+@media (min-width:700px){
+  .homegrid{grid-template-columns:repeat(4,1fr);}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-mic" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21 6 3"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><rect x="5" y="4" width="4.5" height="16" rx="1.5"/><rect x="14.5" y="4" width="4.5" height="16" rx="1.5"/></symbol>
+  <symbol id="i-next" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-prev" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></symbol>
+  <symbol id="i-music" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-font" viewBox="0 0 24 24"><path d="M4 20 10 4h1.5L17.5 20"/><path d="M6.5 14h8.5"/><path d="M19 9h3"/><path d="M20.5 7.5v3"/></symbol>
+  <symbol id="i-gauge" viewBox="0 0 24 24"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></symbol>
+</defs></svg>
+
+<!-- ================= ГЛАВНАЯ ================= -->
+<div class="view on" id="viewHome">
+  <div class="wrap">
+    <div class="warnbox" id="qlWarn">
+      <b>Приложение открыто в режиме предпросмотра — память не сохранится.</b><br>
+      Нажми кнопку «Поделиться» и выбери <b>Открыть в Safari</b>. А лучше всего — размести приложение по ссылке и добавь на экран «Домой» (инструкция в файле «Как установить»).
+    </div>
+    <div class="hero">
+      <div class="mark"><svg class="isv" style="width:26px;height:26px"><use href="#i-mic"/></svg></div>
+      <div>
+        <h1>Суфлёр</h1>
+        <p>Тексты песен — всегда под рукой на сцене</p>
+      </div>
+      <button type="button" class="themebtn" id="themeBtn" aria-label="Переключить тему">
+        <svg class="isv" id="themeIcon"><use href="#i-sun"/></svg>
+      </button>
+    </div>
+
+    <div class="sect">Мои сэты</div>
+    <div class="list" id="setList"></div>
+    <button type="button" class="addtile" id="addSetBtn"><svg class="isv"><use href="#i-plus"/></svg>Новый сэт</button>
+
+    <div class="sect">Библиотека</div>
+    <div class="homegrid">
+      <button type="button" class="hbtn" id="openCatalog">
+        <svg class="isv"><use href="#i-music"/></svg>
+        Каталог песен
+        <span class="note" id="catCount">0 песен</span>
+      </button>
+      <button type="button" class="hbtn" id="exportBtn">
+        <svg class="isv"><use href="#i-download"/></svg>
+        Резервная копия
+        <span class="note">каталог + сэты файлом</span>
+      </button>
+      <button type="button" class="hbtn" id="importBtn">
+        <svg class="isv"><use href="#i-upload"/></svg>
+        Восстановить
+        <span class="note">из файла копии</span>
+      </button>
+    </div>
+    <input type="file" id="importFile" accept="application/json,.json" style="display:none">
+  </div>
+</div>
+
+<!-- ================= КАТАЛОГ ================= -->
+<div class="view" id="viewCatalog">
+  <div class="wrap">
+    <div class="tophead">
+      <button type="button" class="back" data-nav="home" aria-label="Назад"><svg class="isv"><use href="#i-back"/></svg></button>
+      <h1>Каталог песен</h1>
+      <button type="button" class="act" id="addSongBtn"><svg class="isv" style="width:16px;height:16px"><use href="#i-plus"/></svg>Песня</button>
+    </div>
+    <div class="search">
+      <svg class="isv"><use href="#i-search"/></svg>
+      <input type="text" id="songSearch" placeholder="Найти песню…" autocomplete="off">
+    </div>
+    <div class="list" id="songList"></div>
+  </div>
+</div>
+
+<!-- ================= РЕДАКТОР ПЕСНИ ================= -->
+<div class="view" id="viewSong">
+  <div class="wrap">
+    <div class="tophead">
+      <button type="button" class="back" data-nav="catalog" aria-label="Назад"><svg class="isv"><use href="#i-back"/></svg></button>
+      <h1 id="songFormTitle">Новая песня</h1>
+    </div>
+    <div class="field">
+      <label for="f_title">Название</label>
+      <input type="text" id="f_title" placeholder="напр. Джулия" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="f_text">Текст</label>
+      <textarea id="f_text" placeholder="Вставь сюда текст песни…&#10;&#10;Метки в квадратных скобках подсветятся:&#10;[Куплет 1]&#10;[Припев]" autocapitalize="sentences"></textarea>
+      <div class="formhint">Пустая строка = отступ между блоками. Метки вроде [Припев], [Куплет 2], [Бридж] будут выделены цветом на сцене.</div>
+    </div>
+    <div class="btnrow">
+      <button type="button" class="btn btn-primary" id="saveSongBtn"><svg class="isv"><use href="#i-check"/></svg>Сохранить</button>
+    </div>
+    <div class="btnrow" id="delSongRow" style="display:none">
+      <button type="button" class="btn btn-danger" id="delSongBtn"><svg class="isv"><use href="#i-trash"/></svg>Удалить песню</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= РЕДАКТОР СЭТА ================= -->
+<div class="view" id="viewSet">
+  <div class="wrap">
+    <div class="tophead">
+      <button type="button" class="back" data-nav="home" aria-label="Назад"><svg class="isv"><use href="#i-back"/></svg></button>
+      <h1 id="setFormTitle">Новый сэт</h1>
+    </div>
+    <div class="field">
+      <label for="f_setname">Название сэта</label>
+      <input type="text" id="f_setname" placeholder="напр. Свадьба 12 июля" autocomplete="off">
+    </div>
+
+    <div class="sect" style="margin-top:18px;">Порядок выступления</div>
+    <div class="list" id="setOrder"></div>
+    <div class="formhint" id="setOrderHint" style="margin:8px 2px 0;">Отметь песни ниже — они появятся здесь. Стрелками меняй порядок.</div>
+
+    <div class="sect">Выбери из каталога</div>
+    <div class="search">
+      <svg class="isv"><use href="#i-search"/></svg>
+      <input type="text" id="setSongSearch" placeholder="Найти песню…" autocomplete="off">
+    </div>
+    <div class="list" id="setPickList"></div>
+
+    <div class="btnrow" style="margin-top:18px;">
+      <button type="button" class="btn btn-primary" id="saveSetBtn"><svg class="isv"><use href="#i-check"/></svg>Сохранить сэт</button>
+    </div>
+    <div class="btnrow" id="delSetRow" style="display:none">
+      <button type="button" class="btn btn-danger" id="delSetBtn"><svg class="isv"><use href="#i-trash"/></svg>Удалить сэт</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= СЦЕНА ================= -->
+<div class="view" id="viewStage">
+  <div class="stage">
+    <div class="stage-head">
+      <button type="button" class="xbtn" id="stageExit" aria-label="Выйти"><svg class="isv"><use href="#i-x"/></svg></button>
+      <div class="ttl">
+        <div class="t" id="stageTitle">—</div>
+        <div class="c" id="stageCount">1 / 1</div>
+      </div>
+      <button type="button" class="listbtn" id="stageList" aria-label="Список сэта"><svg class="isv"><use href="#i-list"/></svg></button>
+    </div>
+
+    <div class="stage-body" id="stageBody">
+      <div class="lyrics" id="lyrics"></div>
+    </div>
+
+    <div class="stage-foot" id="stageFoot">
+      <button type="button" class="sfbtn nav" id="prevBtn" aria-label="Предыдущая песня"><svg class="isv"><use href="#i-prev"/></svg></button>
+      <button type="button" class="sfbtn sq" id="fontMinus" aria-label="Мельче"><span style="font-size:13px;font-weight:800">А−</span></button>
+      <button type="button" class="sfbtn sq" id="scrollBtn" aria-label="Автопрокрутка"><svg class="isv" id="scrollIcon"><use href="#i-play"/></svg></button>
+      <button type="button" class="sfbtn sq" id="fontPlus" aria-label="Крупнее"><span style="font-size:16px;font-weight:800">А+</span></button>
+      <button type="button" class="sfbtn nav" id="nextBtn" aria-label="Следующая песня"><svg class="isv"><use href="#i-next"/></svg></button>
+      <div class="speedwrap" id="speedWrap">
+        <div class="lbl"><span>Скорость прокрутки</span><span id="speedVal">3</span></div>
+        <input type="range" id="speedRange" min="1" max="10" step="1" value="3">
+      </div>
+    </div>
+  </div>
+
+  <!-- шторка со списком сэта -->
+  <div class="setsheet" id="setSheet">
+    <div class="dim" id="setSheetDim"></div>
+    <div class="panel">
+      <h3>Сэт-лист</h3>
+      <div id="sheetRows"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<div class="modal-bg" id="confirmBg">
+  <div class="modal">
+    <div class="msg" id="confirmMsg"></div>
+    <div class="btnrow">
+      <button type="button" class="btn btn-ghost" id="confirmNo">Отмена</button>
+      <button type="button" class="btn btn-primary" id="confirmYes">Да</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* =====================================================================
+   ХРАНИЛИЩЕ — безопасное для iOS.
+   Если localStorage недоступен (предпросмотр QuickLook, приватный режим
+   старых iOS) — работаем в памяти и показываем предупреждение.
+   ===================================================================== */
+var memStore={}, storageOK=false;
+try{
+  localStorage.setItem('__sf_t','1'); localStorage.removeItem('__sf_t');
+  storageOK=true;
+}catch(e){ storageOK=false; }
+function sGet(k){ if(storageOK){ try{return localStorage.getItem(k);}catch(e){} } return (k in memStore)?memStore[k]:null; }
+function sSet(k,v){ if(storageOK){ try{ localStorage.setItem(k,v); return; }catch(e){} } memStore[k]=v; }
+
+var K_SONGS='sf_songs_v1', K_SETS='sf_sets_v1', K_CFG='sf_cfg_v1';
+
+function loadJSON(k,fb){ try{ var v=sGet(k); return v?JSON.parse(v):fb; }catch(e){ return fb; } }
+var songs=loadJSON(K_SONGS,null);
+var sets=loadJSON(K_SETS,null);
+var cfg=loadJSON(K_CFG,{font:24,speed:3,theme:'dark'});
+
+/* первый запуск — примеры, чтобы было видно, как это работает */
+if(!songs){
+  songs=[
+    {id:'demo1',title:'Пример: Куплет и припев',text:'[Куплет 1]\nЭто пример текста песни.\nЗамени меня на настоящую —\nоткрой Каталог песен, нажми «Песня»\nи вставь свой текст.\n\n[Припев]\nМетки в квадратных скобках\nподсвечиваются вот так,\nчтобы на сцене глаз сразу\nнаходил нужный блок.\n\n[Куплет 2]\nПустая строка делает отступ.\nШрифт меняется кнопками А− и А+,\nа кнопка ▶ включает автопрокрутку.'},
+    {id:'demo2',title:'Пример: длинный текст',text:'[Интро]\nЭтот пример подлиннее — включи\nавтопрокрутку и подбери скорость.\n\n[Куплет 1]\nСтрока за строкой текст плывёт вверх,\nруки свободны, взгляд на зале.\nТап по тексту — пауза,\nещё тап — поехали дальше.\n\n[Припев]\nСвайп влево — следующая песня,\nсвайп вправо — предыдущая.\nНомер песни виден сверху,\nсписок сэта — за кнопкой справа.\n\n[Куплет 2]\nЭкран не гаснет, пока идёт сцена:\nприложение держит его включённым.\nУдали примеры, когда добавишь\nсвои настоящие песни.\n\n[Финал]\nНи пуха!'}
+  ];
+  saveSongs();
+}
+if(!sets){
+  sets=[{id:'demoset',name:'Пример сэта',songIds:['demo1','demo2']}];
+  saveSets();
+}
+
+function saveSongs(){ sSet(K_SONGS,JSON.stringify(songs)); }
+function saveSets(){ sSet(K_SETS,JSON.stringify(sets)); }
+function saveCfg(){ sSet(K_CFG,JSON.stringify(cfg)); }
+
+/* ===================================================================== ХЕЛПЕРЫ */
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function uid(){ return 's'+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36); }
+function songById(id){ for(var i=0;i<songs.length;i++) if(songs[i].id===id) return songs[i]; return null; }
+function setById(id){ for(var i=0;i<sets.length;i++) if(sets[i].id===id) return sets[i]; return null; }
+function ruSongs(n){ var m10=n%10,m100=n%100; if(m10===1&&m100!==11)return n+' песня'; if(m10>=2&&m10<=4&&(m100<10||m100>=20))return n+' песни'; return n+' песен'; }
+
+var toastTm=null;
+function toast(msg){
+  var t=$('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastTm); toastTm=setTimeout(function(){ t.classList.remove('show'); },2200);
+}
+function ask(msg,onYes){
+  var bg=$('confirmBg'); $('confirmMsg').textContent=msg; bg.classList.add('show');
+  var y=$('confirmYes'),n=$('confirmNo');
+  function close(){ bg.classList.remove('show'); y.onclick=null; n.onclick=null; bg.onclick=null; }
+  y.onclick=function(){ close(); onYes&&onYes(); };
+  n.onclick=close;
+  bg.onclick=function(e){ if(e.target===bg) close(); };
+}
+
+/* ===================================================================== НАВИГАЦИЯ */
+var VIEWS=['Home','Catalog','Song','Set','Stage'];
+function show(name){
+  VIEWS.forEach(function(v){ $('view'+v).classList.toggle('on', v===name); });
+  window.scrollTo(0,0);
+  if(name!=='Stage') stopScroll(), releaseWake();
+}
+document.addEventListener('click',function(e){
+  var nav=e.target.closest('[data-nav]');
+  if(!nav) return;
+  var to=nav.getAttribute('data-nav');
+  if(to==='home'){ renderHome(); show('Home'); }
+  if(to==='catalog'){ renderCatalog(); show('Catalog'); }
+});
+
+/* ===================================================================== ТЕМА */
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme', cfg.theme==='light'?'light':'dark');
+  var use=$('themeIcon').querySelector('use');
+  use.setAttribute('href', cfg.theme==='light'?'#i-moon':'#i-sun');
+  var mtc=document.querySelector('meta[name="theme-color"]');
+  if(mtc) mtc.setAttribute('content', cfg.theme==='light'?'#f6f3ec':'#0e1013');
+}
+$('themeBtn').addEventListener('click',function(){
+  cfg.theme = (cfg.theme==='light')?'dark':'light'; saveCfg(); applyTheme();
+});
+
+/* ===================================================================== ГЛАВНАЯ */
+function renderHome(){
+  var host=$('setList'); host.innerHTML='';
+  if(!sets.length){
+    host.innerHTML='<div class="empty"><b>Сэтов пока нет.</b><br>Сэт — это список песен на одно выступление. Нажми «Новый сэт», выбери песни из каталога и расставь порядок.</div>';
+  } else {
+    sets.forEach(function(st){
+      var cnt=st.songIds.filter(songById).length;
+      var el=document.createElement('div'); el.className='item';
+      el.innerHTML='<div class="main" data-editset="'+st.id+'"><div class="t">'+esc(st.name||'Без названия')+'</div>'+
+        '<div class="s">'+ruSongs(cnt)+'</div></div>'+
+        '<button type="button" class="play-set" data-playset="'+st.id+'" aria-label="Выступать"><svg class="isv" style="width:22px;height:22px"><use href="#i-play"/></svg></button>';
+      host.appendChild(el);
+    });
+  }
+  $('catCount').textContent=ruSongs(songs.length);
+}
+$('setList').addEventListener('click',function(e){
+  var p=e.target.closest('[data-playset]');
+  if(p){ startStage(p.getAttribute('data-playset')); return; }
+  var ed=e.target.closest('[data-editset]');
+  if(ed){ openSetEditor(ed.getAttribute('data-editset')); }
+});
+$('addSetBtn').addEventListener('click',function(){ openSetEditor(null); });
+$('openCatalog').addEventListener('click',function(){ renderCatalog(); show('Catalog'); });
+
+/* ===================================================================== КАТАЛОГ */
+var songQuery='';
+function renderCatalog(){
+  var host=$('songList'); host.innerHTML='';
+  var q=songQuery.trim().toLowerCase();
+  var list=songs.filter(function(s){ return !q || (s.title+' '+s.text).toLowerCase().indexOf(q)!==-1; });
+  if(!songs.length){
+    host.innerHTML='<div class="empty"><b>Каталог пуст.</b><br>Нажми «Песня» и вставь название и текст — искать по сайтам больше не придётся.</div>';
+    return;
+  }
+  if(!list.length){
+    host.innerHTML='<div class="empty">Ничего не найдено по запросу «'+esc(songQuery)+'»</div>';
+    return;
+  }
+  list.sort(function(a,b){ return a.title.localeCompare(b.title,'ru'); });
+  list.forEach(function(s){
+    var lines=s.text.split('\n').filter(function(l){return l.trim();}).length;
+    var el=document.createElement('div'); el.className='item';
+    el.innerHTML='<div class="main" data-song="'+s.id+'"><div class="t">'+esc(s.title)+'</div>'+
+      '<div class="s">'+lines+' строк</div></div>'+
+      '<button type="button" class="iconbtn" data-song="'+s.id+'" aria-label="Редактировать"><svg class="isv"><use href="#i-edit"/></svg></button>';
+    host.appendChild(el);
+  });
+}
+$('songSearch').addEventListener('input',function(){ songQuery=this.value; renderCatalog(); });
+$('songList').addEventListener('click',function(e){
+  var el=e.target.closest('[data-song]');
+  if(el) openSongEditor(el.getAttribute('data-song'));
+});
+
+/* ===================================================================== РЕДАКТОР ПЕСНИ */
+var editSongId=null;
+function openSongEditor(id){
+  editSongId=id;
+  var s=id?songById(id):null;
+  $('songFormTitle').textContent=s?'Редактор песни':'Новая песня';
+  $('f_title').value=s?s.title:'';
+  $('f_text').value=s?s.text:'';
+  $('delSongRow').style.display=s?'':'none';
+  show('Song');
+}
+$('addSongBtn').addEventListener('click',function(){ openSongEditor(null); });
+$('saveSongBtn').addEventListener('click',function(){
+  var title=$('f_title').value.trim();
+  var text=$('f_text').value.replace(/\r/g,'');
+  if(!title){ toast('Дай песне название'); $('f_title').focus(); return; }
+  if(!text.trim()){ toast('Вставь текст песни'); $('f_text').focus(); return; }
+  if(editSongId){
+    var s=songById(editSongId); if(s){ s.title=title; s.text=text; }
+  } else {
+    songs.push({id:uid(),title:title,text:text});
+  }
+  saveSongs(); renderCatalog(); show('Catalog'); toast('Сохранено ✓');
+});
+$('delSongBtn').addEventListener('click',function(){
+  if(!editSongId) return;
+  ask('Удалить эту песню? Она пропадёт и из сэтов.',function(){
+    songs=songs.filter(function(s){ return s.id!==editSongId; });
+    sets.forEach(function(st){ st.songIds=st.songIds.filter(function(id){ return id!==editSongId; }); });
+    saveSongs(); saveSets(); renderCatalog(); show('Catalog'); toast('Песня удалена');
+  });
+});
+
+/* ===================================================================== РЕДАКТОР СЭТА */
+var editSetId=null, draftIds=[], setQuery='';
+function openSetEditor(id){
+  editSetId=id;
+  var st=id?setById(id):null;
+  $('setFormTitle').textContent=st?'Редактор сэта':'Новый сэт';
+  $('f_setname').value=st?st.name:'';
+  draftIds=st?st.songIds.slice().filter(songById):[];
+  $('delSetRow').style.display=st?'':'none';
+  setQuery=''; $('setSongSearch').value='';
+  renderSetEditor();
+  show('Set');
+}
+function renderSetEditor(){
+  /* порядок */
+  var oh=$('setOrder'); oh.innerHTML='';
+  draftIds.forEach(function(id,i){
+    var s=songById(id); if(!s) return;
+    var el=document.createElement('div'); el.className='ordrow';
+    el.innerHTML='<span class="num">'+(i+1)+'</span><span class="t">'+esc(s.title)+'</span>'+
+      '<button type="button" class="mv" data-up="'+i+'" '+(i===0?'disabled':'')+' aria-label="Выше"><svg class="isv"><use href="#i-up"/></svg></button>'+
+      '<button type="button" class="mv" data-down="'+i+'" '+(i===draftIds.length-1?'disabled':'')+' aria-label="Ниже"><svg class="isv"><use href="#i-down"/></svg></button>';
+    oh.appendChild(el);
+  });
+  $('setOrderHint').style.display=draftIds.length?'none':'';
+  /* выбор */
+  var ph=$('setPickList'); ph.innerHTML='';
+  var q=setQuery.trim().toLowerCase();
+  var list=songs.slice().sort(function(a,b){ return a.title.localeCompare(b.title,'ru'); })
+    .filter(function(s){ return !q || s.title.toLowerCase().indexOf(q)!==-1; });
+  if(!songs.length){
+    ph.innerHTML='<div class="empty">Каталог пуст — сначала добавь песни.</div>';
+  }
+  list.forEach(function(s){
+    var idx=draftIds.indexOf(s.id);
+    var el=document.createElement('div'); el.className='pickrow'+(idx>=0?' sel':''); el.setAttribute('data-pick',s.id);
+    el.innerHTML='<span class="cb"><svg class="isv"><use href="#i-check"/></svg></span>'+
+      '<span class="t">'+esc(s.title)+'</span>'+(idx>=0?'<span class="ord">'+(idx+1)+'</span>':'');
+    ph.appendChild(el);
+  });
+}
+$('setPickList').addEventListener('click',function(e){
+  var el=e.target.closest('[data-pick]'); if(!el) return;
+  var id=el.getAttribute('data-pick');
+  var i=draftIds.indexOf(id);
+  if(i>=0) draftIds.splice(i,1); else draftIds.push(id);
+  renderSetEditor();
+});
+$('setOrder').addEventListener('click',function(e){
+  var up=e.target.closest('[data-up]'), dn=e.target.closest('[data-down]');
+  if(up){ var i=+up.getAttribute('data-up'); if(i>0){ var t=draftIds[i-1]; draftIds[i-1]=draftIds[i]; draftIds[i]=t; renderSetEditor(); } }
+  if(dn){ var j=+dn.getAttribute('data-down'); if(j<draftIds.length-1){ var t2=draftIds[j+1]; draftIds[j+1]=draftIds[j]; draftIds[j]=t2; renderSetEditor(); } }
+});
+$('setSongSearch').addEventListener('input',function(){ setQuery=this.value; renderSetEditor(); });
+$('saveSetBtn').addEventListener('click',function(){
+  var name=$('f_setname').value.trim();
+  if(!name){ toast('Дай сэту название'); $('f_setname').focus(); return; }
+  if(!draftIds.length){ toast('Выбери хотя бы одну песню'); return; }
+  if(editSetId){
+    var st=setById(editSetId); if(st){ st.name=name; st.songIds=draftIds.slice(); }
+  } else {
+    sets.push({id:uid(),name:name,songIds:draftIds.slice()});
+  }
+  saveSets(); renderHome(); show('Home'); toast('Сэт сохранён ✓');
+});
+$('delSetBtn').addEventListener('click',function(){
+  if(!editSetId) return;
+  ask('Удалить этот сэт? Песни останутся в каталоге.',function(){
+    sets=sets.filter(function(s){ return s.id!==editSetId; });
+    saveSets(); renderHome(); show('Home'); toast('Сэт удалён');
+  });
+});
+
+/* ===================================================================== СЦЕНА */
+var stageSet=null, stageIdx=0;
+
+function fmtLyrics(text){
+  var out=[];
+  text.split('\n').forEach(function(ln){
+    if(!ln.trim()){ out.push('<span class="blank"></span>'); return; }
+    var m=ln.match(/^\s*\[([^\]]+)\]\s*$/);
+    if(m){ out.push('<span class="tagline">'+esc(m[1])+'</span>'); return; }
+    out.push(esc(ln));
+  });
+  return out.join('\n').replace(/\n(<span class="(?:blank|tagline)")/g,'$1').replace(/(<\/span>)\n/g,'$1');
+}
+function startStage(setId){
+  var st=setById(setId); if(!st) return;
+  var ids=st.songIds.filter(songById);
+  if(!ids.length){ toast('В сэте нет песен'); return; }
+  stageSet={id:st.id,name:st.name,ids:ids};
+  stageIdx=0;
+  show('Stage');
+  renderStageSong(true);
+  requestWake();
+}
+function renderStageSong(resetScroll){
+  var s=songById(stageSet.ids[stageIdx]); if(!s) return;
+  $('stageTitle').textContent=s.title;
+  $('stageCount').textContent=(stageIdx+1)+' / '+stageSet.ids.length;
+  $('lyrics').innerHTML=fmtLyrics(s.text);
+  document.documentElement.style.setProperty('--lyr',cfg.font+'px');
+  $('prevBtn').disabled = stageIdx===0;
+  $('nextBtn').disabled = stageIdx===stageSet.ids.length-1;
+  stopScroll();
+  if(resetScroll!==false) $('stageBody').scrollTop=0;
+}
+function stageMove(d){
+  var ni=stageIdx+d;
+  if(!stageSet || ni<0 || ni>=stageSet.ids.length) return;
+  stageIdx=ni; renderStageSong(true);
+}
+$('prevBtn').addEventListener('click',function(){ stageMove(-1); });
+$('nextBtn').addEventListener('click',function(){ stageMove(1); });
+$('stageExit').addEventListener('click',function(){
+  stopScroll(); releaseWake(); renderHome(); show('Home');
+});
+
+/* размер шрифта */
+function setFont(d){
+  cfg.font=Math.min(44,Math.max(16,(cfg.font||24)+d));
+  document.documentElement.style.setProperty('--lyr',cfg.font+'px');
+  saveCfg();
+}
+$('fontMinus').addEventListener('click',function(){ setFont(-2); });
+$('fontPlus').addEventListener('click',function(){ setFont(2); });
+
+/* ---- автопрокрутка ---- */
+var scrolling=false, rafId=null, lastTs=0, speedHold=null, scrollPos=0;
+function pxPerSec(){ return 8 + (cfg.speed||3)*7; }  /* 15…78 px/с */
+function tick(ts){
+  if(!scrolling) return;
+  var el=$('stageBody');
+  if(lastTs){
+    /* позиция копится во float: доли пикселя не теряются на округлении scrollTop */
+    if(Math.abs(el.scrollTop-scrollPos)>28) scrollPos=el.scrollTop; /* пользователь крутанул рукой — синхронизация */
+    scrollPos += pxPerSec()*(ts-lastTs)/1000;
+    var max=el.scrollHeight-el.clientHeight;
+    if(scrollPos>=max){ el.scrollTop=max; stopScroll(); lastTs=ts; rafId=null; return; }
+    el.scrollTop=scrollPos;
+  } else {
+    scrollPos=el.scrollTop;
+  }
+  lastTs=ts;
+  rafId=requestAnimationFrame(tick);
+}
+function startScroll(){
+  if(scrolling) return;
+  scrolling=true; lastTs=0; scrollPos=$('stageBody').scrollTop;
+  $('scrollBtn').classList.add('playing');
+  $('scrollIcon').querySelector('use').setAttribute('href','#i-pause');
+  rafId=requestAnimationFrame(tick);
+}
+function stopScroll(){
+  scrolling=false;
+  if(rafId) cancelAnimationFrame(rafId), rafId=null;
+  var b=$('scrollBtn'); if(b){ b.classList.remove('playing');
+    $('scrollIcon').querySelector('use').setAttribute('href','#i-play'); }
+}
+/* короткий тап — старт/стоп; долгое удержание — слайдер скорости */
+$('scrollBtn').addEventListener('click',function(){
+  if($('speedWrap').classList.contains('show')){ $('speedWrap').classList.remove('show'); return; }
+  scrolling?stopScroll():startScroll();
+});
+$('scrollBtn').addEventListener('touchstart',function(){
+  speedHold=setTimeout(function(){ $('speedWrap').classList.add('show'); },480);
+},{passive:true});
+$('scrollBtn').addEventListener('touchend',function(){ clearTimeout(speedHold); },{passive:true});
+$('scrollBtn').addEventListener('contextmenu',function(e){ e.preventDefault(); $('speedWrap').classList.add('show'); });
+$('speedRange').addEventListener('input',function(){
+  cfg.speed=+this.value; $('speedVal').textContent=this.value; saveCfg();
+});
+document.addEventListener('click',function(e){
+  var w=$('speedWrap');
+  if(w.classList.contains('show') && !e.target.closest('#speedWrap') && !e.target.closest('#scrollBtn')) w.classList.remove('show');
+});
+/* тап по тексту = пауза/продолжить, когда прокрутка была запущена */
+var wasScrolling=false;
+$('stageBody').addEventListener('click',function(){
+  if(scrolling){ wasScrolling=true; stopScroll(); }
+  else if(wasScrolling){ startScroll(); }
+});
+/* ручной свайп по тексту не должен конфликтовать: пока палец на экране — пауза кадра не нужна,
+   rAF использует scrollTop, ручной скролл просто сдвигает позицию */
+
+/* ---- свайпы влево/вправо для смены песни ---- */
+(function(){
+  var x0=0,y0=0,t0=0,tracking=false;
+  var body=$('stageBody');
+  body.addEventListener('touchstart',function(e){
+    if(e.touches.length!==1) return;
+    x0=e.touches[0].clientX; y0=e.touches[0].clientY; t0=Date.now(); tracking=true;
+  },{passive:true});
+  body.addEventListener('touchend',function(e){
+    if(!tracking) return; tracking=false;
+    var t=e.changedTouches[0];
+    var dx=t.clientX-x0, dy=t.clientY-y0, dt=Date.now()-t0;
+    if(dt<600 && Math.abs(dx)>70 && Math.abs(dx)>Math.abs(dy)*1.6){
+      stageMove(dx<0?1:-1);
+    }
+  },{passive:true});
+})();
+
+/* ---- шторка списка сэта ---- */
+$('stageList').addEventListener('click',function(){
+  var host=$('sheetRows'); host.innerHTML='';
+  stageSet.ids.forEach(function(id,i){
+    var s=songById(id); if(!s) return;
+    var el=document.createElement('div'); el.className='row'+(i===stageIdx?' cur':''); el.setAttribute('data-jump',i);
+    el.innerHTML='<span class="n">'+(i+1)+'</span><span class="t">'+esc(s.title)+'</span>';
+    host.appendChild(el);
+  });
+  $('setSheet').classList.add('show');
+});
+$('setSheetDim').addEventListener('click',function(){ $('setSheet').classList.remove('show'); });
+$('sheetRows').addEventListener('click',function(e){
+  var el=e.target.closest('[data-jump]'); if(!el) return;
+  stageIdx=+el.getAttribute('data-jump');
+  renderStageSong(true);
+  $('setSheet').classList.remove('show');
+});
+
+/* ---- Wake Lock: экран не гаснет на сцене ---- */
+var wakeLock=null;
+function requestWake(){
+  if(!('wakeLock' in navigator)) return;
+  navigator.wakeLock.request('screen').then(function(wl){
+    wakeLock=wl;
+    wl.addEventListener('release',function(){ wakeLock=null; });
+  }).catch(function(){});
+}
+function releaseWake(){
+  if(wakeLock){ try{ wakeLock.release(); }catch(e){} wakeLock=null; }
+}
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='visible' && $('viewStage').classList.contains('on')) requestWake();
+});
+
+/* ===================================================================== ЭКСПОРТ / ИМПОРТ */
+$('exportBtn').addEventListener('click',function(){
+  try{
+    var payload={app:'souffleur',version:1,exported:new Date().toISOString(),songs:songs,sets:sets};
+    var blob=new Blob([JSON.stringify(payload,null,1)],{type:'application/json'});
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    var d=new Date();
+    a.download='суфлёр_копия_'+d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+'.json';
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },800);
+    toast('Копия сохранена в Файлы ✓');
+  }catch(e){ toast('Не удалось сохранить копию'); }
+});
+$('importBtn').addEventListener('click',function(){ $('importFile').click(); });
+$('importFile').addEventListener('change',function(){
+  var f=this.files && this.files[0]; this.value='';
+  if(!f) return;
+  var r=new FileReader();
+  r.onload=function(){
+    try{
+      var d=JSON.parse(r.result);
+      if(!d || !Array.isArray(d.songs) || !Array.isArray(d.sets)) throw 0;
+      ask('Заменить текущий каталог и сэты данными из файла ('+ruSongs(d.songs.length)+')?',function(){
+        songs=d.songs; sets=d.sets;
+        saveSongs(); saveSets(); renderHome(); toast('Восстановлено ✓');
+      });
+    }catch(e){ toast('Файл не похож на копию Суфлёра'); }
+  };
+  r.readAsText(f);
+});
+
+/* ===================================================================== ДЕТЕКТОР ПРЕДПРОСМОТРА */
+(function(){
+  var bad=!storageOK;
+  /* QuickLook на iOS: file:-URL с /tmp/…/QuickLook или отсутствие storage */
+  if(location.protocol==='file:' && /QuickLook/i.test(location.pathname)) bad=true;
+  if(bad) $('qlWarn').classList.add('show');
+})();
+
+/* ===================================================================== SERVICE WORKER (только на хостинге) */
+if('serviceWorker' in navigator && location.protocol==='https:'){
+  navigator.serviceWorker.register('sw.js').catch(function(){});
+}
+
+/* ===================================================================== СТАРТ */
+applyTheme();
+$('speedRange').value=cfg.speed||3;
+$('speedVal').textContent=cfg.speed||3;
+renderHome();
+
+})();
+</script>
+</body>
+</html>
