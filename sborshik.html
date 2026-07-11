@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Сборщик текстов — Суфлёр</title>
+<style>
+/* ============================================================
+   СБОРЩИК ТЕКСТОВ для Суфлёра — в фирменном стиле приложения
+   ============================================================ */
+:root{
+  --bg:#0e1013; --bg-2:#16191e; --card:#1c2027; --card-2:#242933;
+  --line:#303743; --ink:#f3f0e8; --ink-soft:#a8a294; --ink-faint:#6b675e;
+  --accent:#ffb454; --accent-ink:#1a1204; --accent-sl:#3a2c14;
+  --ok:#7ee0a3; --ok-ink:#0d2417; --danger:#ff7a70; --link:#8ec1ff;
+  --radius:16px; --radius-s:12px;
+  --ff:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+}
+html[data-theme="light"]{
+  --bg:#f6f3ec; --bg-2:#efeadf; --card:#ffffff; --card-2:#f4efe6;
+  --line:#ddd6c8; --ink:#22201b; --ink-soft:#6f6a5e; --ink-faint:#a49d8e;
+  --accent:#c97a10; --accent-ink:#fff; --accent-sl:#f7e5c8;
+  --ok:#1f8a4c; --ok-ink:#fff; --danger:#c8372c; --link:#2f6fd0;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{font-family:var(--ff);background:var(--bg);color:var(--ink);font-size:16px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;padding-bottom:120px;}
+button,input,textarea{font-family:inherit;}
+button{cursor:pointer;}
+a{color:var(--link);}
+.wrap{max-width:760px;margin:0 auto;padding:18px 16px 0;}
+
+/* шапка */
+.top{display:flex;align-items:center;gap:14px;padding:6px 2px 16px;}
+.top .mark{width:52px;height:52px;border-radius:15px;flex:0 0 auto;color:var(--accent-ink);
+  background:linear-gradient(145deg,var(--accent),#ff8f3d);display:flex;align-items:center;justify-content:center;
+  box-shadow:0 8px 22px -8px rgba(255,150,60,.5);}
+.top h1{font-size:22px;font-weight:800;letter-spacing:-.02em;margin:0;}
+.top p{margin:3px 0 0;font-size:13px;color:var(--ink-soft);}
+.top .grow{flex:1;}
+.iconbtn{width:44px;height:44px;border:1px solid var(--line);background:var(--card);color:var(--ink);
+  border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.iconbtn:active{transform:scale(.95);}
+
+/* инструкция */
+.howto{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px;}
+.howto b{display:block;font-size:15px;margin-bottom:8px;}
+.howto ol{margin:0 0 10px;padding-left:22px;font-size:14px;color:var(--ink-soft);}
+.howto li{margin-bottom:6px;}
+.howto li b{display:inline;font-size:14px;color:var(--ink);}
+.howto .mini{font-size:12.5px;color:var(--ink-faint);margin:0 0 10px;}
+.howto .fold{border:0;background:var(--card-2);color:var(--ink);font-weight:700;font-size:13px;
+  padding:9px 14px;border-radius:10px;}
+.howto.folded ol,.howto.folded .mini{display:none;}
+
+/* прогресс */
+.prog{position:sticky;top:0;z-index:20;background:var(--bg);padding:10px 0 8px;margin:0 -2px;}
+.pbar{height:10px;background:var(--card-2);border-radius:99px;overflow:hidden;border:1px solid var(--line);}
+.pfill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),#ff8f3d);border-radius:99px;
+  transition:width .3s ease;}
+.ptext{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink-soft);margin-top:6px;font-weight:700;}
+.ptext .done{color:var(--accent);}
+
+/* якоря групп */
+.gnav{display:flex;gap:8px;margin:10px 0 4px;flex-wrap:wrap;}
+.gnav a{flex:1;min-width:130px;text-decoration:none;text-align:center;background:var(--card);color:var(--ink);
+  border:1px solid var(--line);border-radius:12px;padding:10px 8px;font-size:13.5px;font-weight:700;}
+.gnav a span{color:var(--ink-soft);font-weight:600;}
+
+/* секции */
+.sect{font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);
+  margin:26px 4px 10px;display:flex;justify-content:space-between;align-items:baseline;scroll-margin-top:70px;}
+.sect .c{font-size:12px;letter-spacing:0;text-transform:none;color:var(--ink-soft);font-weight:700;}
+
+/* карточка песни */
+.song{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:10px;overflow:hidden;
+  border-left:4px solid var(--line);}
+.song.filled{border-left-color:var(--ok);}
+.song .head{display:flex;align-items:center;gap:10px;padding:12px 12px 12px 14px;}
+.song .num{width:34px;flex:0 0 auto;font-size:12.5px;font-weight:800;color:var(--ink-faint);}
+.song.filled .num{color:var(--ok);}
+.song .t{flex:1;min-width:0;font-size:15px;font-weight:700;letter-spacing:-.01em;cursor:pointer;}
+.song .t small{display:block;font-weight:600;font-size:11.5px;color:var(--ink-faint);margin-top:1px;}
+.song .btn{height:38px;padding:0 12px;border-radius:10px;border:0;font-weight:700;font-size:13px;
+  display:inline-flex;align-items:center;gap:6px;text-decoration:none;flex:0 0 auto;}
+.song .find{background:var(--accent-sl);color:var(--accent);}
+html[data-theme="light"] .song .find{color:#8a5406;}
+.song .paste{background:var(--accent);color:var(--accent-ink);}
+.song .btn:active{transform:scale(.96);}
+.song .body{display:none;padding:0 14px 14px;}
+.song.open .body{display:block;}
+.song textarea{width:100%;min-height:180px;font-size:14px;line-height:1.55;color:var(--ink);background:var(--bg-2);
+  border:1.5px solid var(--line);border-radius:var(--radius-s);padding:12px;resize:vertical;}
+.song textarea:focus{border-color:var(--accent);outline:none;}
+.song .rowbtns{display:flex;gap:8px;margin-top:10px;}
+.song .ghost{background:var(--card-2);color:var(--ink-soft);border:0;}
+.song .ok-ic{color:var(--ok);font-weight:900;display:none;flex:0 0 auto;font-size:16px;}
+.song.filled .ok-ic{display:block;}
+.song .chev{color:var(--ink-faint);flex:0 0 auto;transition:transform .2s;cursor:pointer;padding:4px;}
+.song.open .chev{transform:rotate(180deg);}
+
+/* нижняя панель */
+.bottom{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--bg-2);border-top:1px solid var(--line);
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));}
+.bottom .in{max-width:760px;margin:0 auto;display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
+.bottom .dl{flex:1;min-width:220px;height:52px;border:0;border-radius:14px;background:var(--accent);color:var(--accent-ink);
+  font-size:15.5px;font-weight:800;box-shadow:0 6px 18px -6px rgba(255,180,84,.45);}
+.bottom .dl:disabled{opacity:.45;box-shadow:none;}
+.bottom .dl:not(:disabled):active{transform:scale(.98);}
+.bottom .side{display:flex;gap:8px;}
+.bottom .mini{height:52px;padding:0 14px;border-radius:14px;border:1px solid var(--line);background:var(--card);
+  color:var(--ink);font-size:13px;font-weight:700;}
+.bottom .chk{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-soft);width:100%;}
+.bottom .chk input{width:18px;height:18px;accent-color:var(--accent);}
+
+/* тост и модал */
+#toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%) translateY(20px);opacity:0;z-index:60;
+  background:var(--ink);color:var(--bg);font-size:14px;font-weight:700;padding:11px 18px;border-radius:99px;
+  pointer-events:none;transition:all .25s;white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.modal{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal.show{display:flex;}
+.modal .dim{position:absolute;inset:0;background:rgba(0,0,0,.6);}
+.modal .box{position:relative;max-width:480px;width:100%;background:var(--card);border:1px solid var(--line);
+  border-radius:20px;padding:22px;max-height:82vh;overflow:auto;}
+.modal h3{margin:0 0 10px;font-size:18px;}
+.modal p,.modal li{font-size:14px;color:var(--ink-soft);}
+.modal ol{padding-left:20px;margin:8px 0;}
+.modal li{margin-bottom:8px;}
+.modal b{color:var(--ink);}
+.modal .close{width:100%;height:48px;margin-top:10px;border:0;border-radius:12px;background:var(--accent);
+  color:var(--accent-ink);font-weight:800;font-size:15px;}
+@media (max-width:520px){
+  .song .head{flex-wrap:wrap;}
+  .song .t{flex-basis:calc(100% - 90px);}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="mark">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+    </div>
+    <div>
+      <h1>Сборщик текстов</h1>
+      <p>для Суфлёра · <span id="totalN">0</span> песен из папки MINUS</p>
+    </div>
+    <div class="grow"></div>
+    <button class="iconbtn" id="themeBtn" title="Тема">◐</button>
+  </header>
+
+  <section class="howto" id="howto">
+    <b>Как собрать все тексты (проще, чем кажется)</b>
+    <ol>
+      <li><b>«Найти текст»</b> — откроется страница с текстом песни (или поиск, где текст обычно в первой же ссылке).</li>
+      <li>Выдели там текст песни и скопируй (Ctrl+C или Ctrl+A → Ctrl+C — лишнее я уберу сам).</li>
+      <li>Вернись сюда и нажми <b>«Вставить»</b> у той же песни — текст ляжет на место, я его подчищу и отмечу песню зелёным. Если браузер спросит разрешение на чтение буфера — разреши.</li>
+    </ol>
+    <p class="mini">Всё сохраняется само прямо в браузере — можно собирать в несколько заходов. Когда закончишь (или устанешь) — жми жёлтую кнопку внизу: получишь файл, который Суфлёр съедает целиком. Народные песни можно собрать сегодня, эстраду — завтра: файл можно скачивать сколько угодно раз.</p>
+    <button class="fold" id="foldBtn">Понятно, свернуть</button>
+  </section>
+
+  <div class="prog">
+    <div class="pbar"><div class="pfill" id="pFill"></div></div>
+    <div class="ptext"><span>Заполнено: <span class="done" id="pDone">0</span> из <span id="pTotal">0</span></span><span id="pPct">0%</span></div>
+  </div>
+
+  <nav class="gnav" id="gnav"></nav>
+  <main id="list"></main>
+</div>
+
+<div class="bottom">
+  <div class="in">
+    <label class="chk"><input type="checkbox" id="inclEmpty"> добавить в файл и песни без текста (появятся в Суфлёре с заметкой-заглушкой)</label>
+    <button class="dl" id="dlBtn" disabled>Скачать файл для Суфлёра</button>
+    <div class="side">
+      <button class="mini" id="dlSiteBtn" title="Файл каталога для загрузки в репозиторий GitHub">songs.json</button>
+      <button class="mini" id="draftSaveBtn" title="Сохранить черновик в файл">Черновик ⬇</button>
+      <button class="mini" id="draftLoadBtn" title="Загрузить черновик из файла">Черновик ⬆</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="afterModal">
+  <div class="dim"></div>
+  <div class="box">
+    <h3>Файл готов! Теперь в Суфлёр 🎤</h3>
+    <p>Файл <b id="dlName">суфлёр_каталог.json</b> лежит в «Загрузках». Дальше:</p>
+    <ol>
+      <li>Перекинь его на iPhone: проще всего отправить себе в WhatsApp/Telegram и на айфоне нажать «Сохранить в Файлы». Или скачай заново прямо с айфона, открыв этот сборщик там.</li>
+      <li>Открой <b>Суфлёр</b> (иконка на экране «Домой»).</li>
+      <li>На главной нажми <b>«Восстановить из копии»</b> и выбери этот файл.</li>
+      <li>Подтверди замену — и все песни с текстами появятся в каталоге, плюс три готовых сэта: Казахские, Русские, Английские.</li>
+    </ol>
+    <p>Добавишь ещё текстов — просто скачай файл заново и повтори.</p>
+    <p><b>Есть путь ещё проще</b> (для Суфлёра v2): кнопка <b>songs.json</b> внизу даёт тот же файл для сайта — загрузи его в свой репозиторий souffleur на GitHub, и Суфлёр на всех устройствах подтянет каталог сам при запуске.</p>
+    <button class="close" id="afterClose">Понял</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* ================= ДАННЫЕ ================= */
+var SONGS=[{"id":"kz01","g":"kz","t":"Қазыбек Құрайыш — Көркемім","q":"Қазыбек Құрайыш Көркемім текст мәтіні","u":"https://lyricskz.com/qazybek-qurajysh-koerkemim/"},{"id":"kz02","g":"kz","t":"Арнау — Сенен басқа","q":"Арнау Сенен басқа текст мәтіні","u":"https://matinder.kz/song/arnau-toby/senen-baska","note":"группа «Арнау» (Арнау тобы)"},{"id":"kz03","g":"kz","t":"Егіз лебіз","q":"Егіз лебіз текст мәтіні","u":"https://matinder.kz/song/arnau-toby/egiz-lebiz","note":"поют «Арнау»; есть версия Толқын Забировой"},{"id":"kz04","g":"kz","t":"Дос-Мұқасан — Он алты қыз (16 қыз)","q":"Дос-Мұқасан Он алты қыз (16 қыз) текст мәтіні","u":"https://matinder.kz/song/dos-mukasan-toby/on-alty-kyz"},{"id":"kz05","g":"kz","t":"Абай — Бойы бұлғаң","q":"Абай Бойы бұлғаң текст мәтіні","u":"https://bilim-all.kz/olen/8203-Boiy-bulgan","note":"стихи Абая — в песне поётся часть куплетов"},{"id":"kz06","g":"kz","t":"Батырхан Шүкенов — Отан ана","q":"Батырхан Шүкенов Отан ана текст мәтіні","u":"https://matinder.kz/song/batyrhan-shukenov/otan-ana"},{"id":"kz07","g":"kz","t":"Жұбаныш Жексен — Жолдар","q":"Жұбаныш Жексен Жолдар текст мәтіні","u":"https://www.ankui.kz/kz/an/zholdar-1.html"},{"id":"kz08","g":"kz","t":"Марат Омаров — Анашым","q":"Марат Омаров Анашым текст мәтіні","u":"https://matinder.kz/song/marat-omarov/anashym-9"},{"id":"kz09","g":"kz","t":"Нұрлан — Анашым","q":"Нұрлан Анашым текст мәтіні","note":"вторая «Анашым»; у Марата Омарова — своя, сверь с минусом"},{"id":"kz10","g":"kz","t":"Мұзарт — Ол көктем оралмайды","q":"Мұзарт Ол көктем оралмайды текст мәтіні"},{"id":"kz11","g":"kz","t":"Наз қоңыр (халық әні)","q":"Наз қоңыр (халық әні) текст мәтіні","u":"https://ander.kz/%D0%BD%D0%B0%D0%B7-%D2%9B%D0%BE%D2%A3%D1%8B%D1%80/","note":"халық әні (народная)"},{"id":"kz12","g":"kz","t":"Қарақат Әбілдина — Асыл әжем","q":"Қарақат Әбілдина Асыл әжем текст мәтіні"},{"id":"kz13","g":"kz","t":"Роза Рымбаева — Атамекен","q":"Роза Рымбаева Атамекен текст мәтіні"},{"id":"kz14","g":"kz","t":"Серік Ибрагимов — Жаяу","q":"Серік Ибрагимов Жаяу текст мәтіні"},{"id":"kz15","g":"kz","t":"Шәмші Қалдаяқов — Ана туралы жыр","q":"Шәмші Қалдаяқов Ана туралы жыр текст мәтіні"},{"id":"kz16","g":"kz","t":"Мирас Жүгінісов — Сен туралы","q":"Мирас Жүгінісов Сен туралы текст мәтіні"},{"id":"kz17","g":"kz","t":"Мирас Жүгінісов — Әндетемін","q":"Мирас Жүгінісов Әндетемін текст мәтіні"},{"id":"kz18","g":"kz","t":"Нұржан Керменбаев — Жылайды жүрек","q":"Нұржан Керменбаев Жылайды жүрек текст мәтіні"},{"id":"kz19","g":"kz","t":"Әли Оқапов — Биле","q":"Әли Оқапов Биле текст мәтіні"},{"id":"kz20","g":"kz","t":"Nazzarbeck — Жын ұрады","q":"Nazzarbeck Жын ұрады текст мәтіні"},{"id":"kz21","g":"kz","t":"Сен қасымда болмасаң (Abik Jeksen)","q":"Сен қасымда болмасаң (Abik Jeksen) текст мәтіні"},{"id":"kz22","g":"kz","t":"Ербол Нариманұлы — Сен","q":"Ербол Нариманұлы Сен текст мәтіні"},{"id":"kz23","g":"kz","t":"Ернар Амандық — Мені күт","q":"Ернар Амандық Мені күт текст мәтіні"},{"id":"kz24","g":"kz","t":"ALEM — Күйім","q":"ALEM Күйім текст мәтіні"},{"id":"kz25","g":"kz","t":"Taspay — Оралма қашқын","q":"Taspay Оралма қашқын текст мәтіні"},{"id":"kz26","g":"kz","t":"Taspay — Досекеш","q":"Taspay Досекеш текст мәтіні"},{"id":"kz27","g":"kz","t":"Құсни-Қорлан (халық әні)","q":"Құсни-Қорлан (халық әні) текст мәтіні","u":"https://bilim-all.kz/olen/10394-Qorlan-/1-nusqa","note":"халық әні; известна по Естаю и Димашу"},{"id":"kz28","g":"kz","t":"Той жыры (Дос-Мұқасан)","q":"Той жыры (Дос-Мұқасан) текст мәтіні"},{"id":"kz29","g":"kz","t":"Қайрат Нұртас & Нюша — Алматының түндері","q":"Қайрат Нұртас & Нюша Алматының түндері текст мәтіні"},{"id":"kz30","g":"kz","t":"Mysterions — Hola","q":"Mysterions Hola текст мәтіні","note":"так подписан файл минуса — сверь исполнителя"},{"id":"ru01","g":"ru","t":"Кватро — Позови меня с собой","q":"Кватро Позови меня с собой текст песни"},{"id":"ru02","g":"ru","t":"CHABANOV — Ночь","q":"CHABANOV Ночь текст песни","note":"CHABANOV — Александр Чабанов"},{"id":"ru03","g":"ru","t":"Иван Дорн — Северное сияние","q":"Иван Дорн Северное сияние текст песни"},{"id":"ru04","g":"ru","t":"Иван Дорн — Целовать","q":"Иван Дорн Целовать текст песни"},{"id":"ru05","g":"ru","t":"Иван Дорн — Ненавижу","q":"Иван Дорн Ненавижу текст песни"},{"id":"ru06","g":"ru","t":"Иван Дорн — Стыцамен","q":"Иван Дорн Стыцамен текст песни"},{"id":"ru07","g":"ru","t":"Батырхан Шукенов — Твои шаги","q":"Батырхан Шукенов Твои шаги текст песни"},{"id":"ru08","g":"ru","t":"Макс Корж — Жить в кайф","q":"Макс Корж Жить в кайф текст песни"},{"id":"ru09","g":"ru","t":"Пицца — Оружие","q":"Пицца Оружие текст песни"},{"id":"ru10","g":"ru","t":"Пицца — Романс","q":"Пицца Романс текст песни"},{"id":"ru11","g":"ru","t":"Пицца — Лифт","q":"Пицца Лифт текст песни"},{"id":"ru12","g":"ru","t":"Виталий Чирва — Представь себе","q":"Виталий Чирва Представь себе текст песни","note":"так подписан файл минуса"},{"id":"ru13","g":"ru","t":"Алексей Чумаков — Счастье","q":"Алексей Чумаков Счастье текст песни"},{"id":"ru14","g":"ru","t":"Алексей Чумаков — Небо в твоих глазах","q":"Алексей Чумаков Небо в твоих глазах текст песни"},{"id":"ru15","g":"ru","t":"Алексей Чумаков — Тут и там","q":"Алексей Чумаков Тут и там текст песни"},{"id":"ru16","g":"ru","t":"Мурат Насыров — Я — это ты","q":"Мурат Насыров Я это ты текст песни"},{"id":"ru17","g":"ru","t":"M'Dee — Весновка","q":"M'Dee Весновка текст песни"},{"id":"ru18","g":"ru","t":"Звери — Районы-кварталы","q":"Звери Районы-кварталы текст песни"},{"id":"ru19","g":"ru","t":"Звери — До скорой встречи","q":"Звери До скорой встречи текст песни"},{"id":"ru20","g":"ru","t":"А'Студио — Нелюбимая","q":"А'Студио Нелюбимая текст песни"},{"id":"ru21","g":"ru","t":"Авраам Руссо — Обручальная","q":"Авраам Руссо Обручальная текст песни"},{"id":"ru22","g":"ru","t":"Авраам Руссо — Шоколадка","q":"Авраам Руссо Шоколадка текст песни"},{"id":"ru23","g":"ru","t":"Аквариум — Город золотой","q":"Аквариум Город золотой текст песни"},{"id":"ru24","g":"ru","t":"Алсу — Весна","q":"Алсу Весна текст песни"},{"id":"ru25","g":"ru","t":"Алсу — Зимний сон","q":"Алсу Зимний сон текст песни"},{"id":"ru26","g":"ru","t":"Андрей Гризли — Эта музыка","q":"Андрей Гризли Эта музыка текст песни"},{"id":"ru27","g":"ru","t":"Андрей Губин — Девушки, как звёзды","q":"Андрей Губин Девушки, как звёзды текст песни"},{"id":"ru28","g":"ru","t":"Андрей Губин — Лиза","q":"Андрей Губин Лиза текст песни"},{"id":"ru29","g":"ru","t":"Андрей Губин — Ночь","q":"Андрей Губин Ночь текст песни"},{"id":"ru30","g":"ru","t":"Анжелика Варум — Зимняя вишня","q":"Анжелика Варум Зимняя вишня текст песни"},{"id":"ru31","g":"ru","t":"Ани Лорак — Солнце","q":"Ани Лорак Солнце текст песни"},{"id":"ru32","g":"ru","t":"Ара Мартиросян — Моя","q":"Ара Мартиросян Моя текст песни"},{"id":"ru33","g":"ru","t":"Арсен Шахунц — Девочка, стоп","q":"Арсен Шахунц Девочка, стоп текст песни"},{"id":"ru34","g":"ru","t":"Баста — Выпускной (Медлячок)","q":"Баста Выпускной (Медлячок) текст песни"},{"id":"ru35","g":"ru","t":"Братья Грим — Ресницы","q":"Братья Грим Ресницы текст песни"},{"id":"ru36","g":"ru","t":"Ваграм Вазян — Любовь и боль","q":"Ваграм Вазян Любовь и боль текст песни"},{"id":"ru37","g":"ru","t":"Валерий Меладзе — Красиво","q":"Валерий Меладзе Красиво текст песни"},{"id":"ru38","g":"ru","t":"Валерий Меладзе — Небеса","q":"Валерий Меладзе Небеса текст песни"},{"id":"ru39","g":"ru","t":"Валерий Меладзе — Салют, Вера","q":"Валерий Меладзе Салют, Вера текст песни"},{"id":"ru40","g":"ru","t":"Валерий Меладзе — Текила-любовь","q":"Валерий Меладзе Текила-любовь текст песни"},{"id":"ru41","g":"ru","t":"Валерий Меладзе и Григорий Лепс — Обернитесь","q":"Валерий Меладзе и Григорий Лепс Обернитесь текст песни"},{"id":"ru42","g":"ru","t":"Вера Брежнева — Реальная жизнь","q":"Вера Брежнева Реальная жизнь текст песни"},{"id":"ru43","g":"ru","t":"Винтаж — Плохая девочка","q":"Винтаж Плохая девочка текст песни"},{"id":"ru44","g":"ru","t":"Винтаж — Роман","q":"Винтаж Роман текст песни"},{"id":"ru45","g":"ru","t":"Катюша","q":"Катюша текст песни"},{"id":"ru46","g":"ru","t":"Градусы — Голая","q":"Градусы Голая текст песни"},{"id":"ru47","g":"ru","t":"Гречка — Люби меня, люби","q":"Гречка Люби меня, люби текст песни"},{"id":"ru48","g":"ru","t":"Группа 101 — Не любишь","q":"Группа 101 Не любишь текст песни"},{"id":"ru49","g":"ru","t":"Дима Билан — На берегу неба","q":"Дима Билан На берегу неба текст песни"},{"id":"ru50","g":"ru","t":"Дима Билан — Ты должна рядом быть","q":"Дима Билан Ты должна рядом быть текст песни"},{"id":"ru51","g":"ru","t":"Дима Билан — Это была любовь","q":"Дима Билан Это была любовь текст песни"},{"id":"ru52","g":"ru","t":"Дима Билан — Я просто люблю тебя","q":"Дима Билан Я просто люблю тебя текст песни","note":"так подписан файл минуса — сверь название"},{"id":"ru53","g":"ru","t":"Дима Билан — Я твой номер один","q":"Дима Билан Я твой номер один текст песни"},{"id":"ru54","g":"ru","t":"Доминик Джокер — Если ты со мной","q":"Доминик Джокер Если ты со мной текст песни"},{"id":"ru55","g":"ru","t":"Елена Ваенга — Шопен","q":"Елена Ваенга Шопен текст песни"},{"id":"ru56","g":"ru","t":"Ёлка — Прованс","q":"Ёлка Прованс текст песни"},{"id":"ru57","g":"ru","t":"Звонкий — Голоса","q":"Звонкий Голоса текст песни"},{"id":"ru58","g":"ru","t":"Ирина Аллегрова — Младший лейтенант","q":"Ирина Аллегрова Младший лейтенант текст песни"},{"id":"ru59","g":"ru","t":"Ирина Аллегрова — С днём рождения","q":"Ирина Аллегрова С днём рождения текст песни"},{"id":"ru60","g":"ru","t":"Каспийский груз — Любовь 1080","q":"Каспийский груз Любовь 1080 текст песни"},{"id":"ru61","g":"ru","t":"Катя Лель — Мой мармеладный","q":"Катя Лель Мой мармеладный текст песни"},{"id":"ru62","g":"ru","t":"Комната культуры — Поезда","q":"Комната культуры Поезда текст песни"},{"id":"ru63","g":"ru","t":"Лев Лещенко — День Победы","q":"Лев Лещенко День Победы текст песни"},{"id":"ru64","g":"ru","t":"Людмила Сенчина — Белой акации гроздья душистые","q":"Людмила Сенчина Белой акации гроздья душистые текст песни"},{"id":"ru65","g":"ru","t":"Макпал Исабекова — Бесконечность","q":"Макпал Исабекова Бесконечность текст песни"},{"id":"ru66","g":"ru","t":"Макс Барских — Туманы","q":"Макс Барских Туманы текст песни"},{"id":"ru67","g":"ru","t":"Макс Барских — Хочу танцевать","q":"Макс Барских Хочу танцевать текст песни"},{"id":"ru68","g":"ru","t":"Марк Бернес — Тёмная ночь","q":"Марк Бернес Тёмная ночь текст песни"},{"id":"ru69","g":"ru","t":"Мираж — Музыка нас связала","q":"Мираж Музыка нас связала текст песни"},{"id":"ru70","g":"ru","t":"Мот — Капкан","q":"Мот Капкан текст песни"},{"id":"ru71","g":"ru","t":"Мот — Любовь как спецэффект","q":"Мот Любовь как спецэффект текст песни","note":"так подписан файл минуса — сверь название"},{"id":"ru72","g":"ru","t":"Мот — Мурашками","q":"Мот Мурашками текст песни"},{"id":"ru73","g":"ru","t":"Мот — Соло","q":"Мот Соло текст песни"},{"id":"ru74","g":"ru","t":"Мот — Тарантино","q":"Мот Тарантино текст песни"},{"id":"ru75","g":"ru","t":"Непара — Червона рута","q":"Непара Червона рута текст песни"},{"id":"ru76","g":"ru","t":"Нервы — Слишком влюблён","q":"Нервы Слишком влюблён текст песни"},{"id":"ru77","g":"ru","t":"Нервы — Я не хочу без тебя спать","q":"Нервы Я не хочу без тебя спать текст песни"},{"id":"ru78","g":"ru","t":"Полина Гагарина — Кукушка","q":"Полина Гагарина Кукушка текст песни"},{"id":"ru79","g":"ru","t":"Руслан Набиев — По ресторанам","q":"Руслан Набиев По ресторанам текст песни"},{"id":"ru80","g":"ru","t":"Sevak — Жди меня там","q":"Sevak Жди меня там текст песни"},{"id":"ru81","g":"ru","t":"Sevak — Когда мы с тобой","q":"Sevak Когда мы с тобой текст песни"},{"id":"ru82","g":"ru","t":"Согдиана — Сердце-магнит","q":"Согдиана Сердце-магнит текст песни"},{"id":"ru83","g":"ru","t":"Султан Лагучев — Горький вкус","q":"Султан Лагучев Горький вкус текст песни"},{"id":"ru84","g":"ru","t":"Тимур Темиров — Небо над землёй","q":"Тимур Темиров Небо над землёй текст песни"},{"id":"ru85","g":"ru","t":"Форум — Белая ночь","q":"Форум Белая ночь текст песни"},{"id":"ru86","g":"ru","t":"Христина Соловій — Тримай","q":"Христина Соловій Тримай текст песни"},{"id":"ru87","g":"ru","t":"Эльбрус Джанмирзоев — Бродяга","q":"Эльбрус Джанмирзоев Бродяга текст песни"},{"id":"ru88","g":"ru","t":"Dan Balan и Вера Брежнева — Лепестками слёз","q":"Dan Balan и Вера Брежнева Лепестками слёз текст песни"},{"id":"ru89","g":"ru","t":"Artik & Asti — Грустный дэнс","q":"Artik & Asti Грустный дэнс текст песни"},{"id":"ru90","g":"ru","t":"ANNA ASTI — Царица","q":"ANNA ASTI Царица текст песни"},{"id":"ru91","g":"ru","t":"LOBODA — К чёрту любовь","q":"LOBODA К чёрту любовь текст песни"},{"id":"ru92","g":"ru","t":"LOBODA — Случайная","q":"LOBODA Случайная текст песни"},{"id":"ru93","g":"ru","t":"LOBODA — Твои глаза","q":"LOBODA Твои глаза текст песни"},{"id":"ru94","g":"ru","t":"IOWA — 140","q":"IOWA 140 текст песни"},{"id":"ru95","g":"ru","t":"IOWA — Улыбайся","q":"IOWA Улыбайся текст песни"},{"id":"ru96","g":"ru","t":"Hi-Fi — Седьмой лепесток","q":"Hi-Fi Седьмой лепесток текст песни"},{"id":"ru97","g":"ru","t":"MONATIK — Кружит","q":"MONATIK Кружит текст песни"},{"id":"ru98","g":"ru","t":"MONATIK — УВЛИУВТ","q":"MONATIK УВЛИУВТ текст песни"},{"id":"ru99","g":"ru","t":"Jah Khalib — Если чё, я Баха","q":"Jah Khalib Если чё, я Баха текст песни"},{"id":"ru100","g":"ru","t":"Jah Khalib — Лейла","q":"Jah Khalib Лейла текст песни"},{"id":"ru101","g":"ru","t":"Jay Stever — Любовь настала","q":"Jay Stever Любовь настала текст песни","note":"возможно кавер: «Любовь настала» Р. Рымбаевой"},{"id":"ru102","g":"ru","t":"Kental — Космос","q":"Kental Космос текст песни"},{"id":"ru103","g":"ru","t":"Quest Pistols Show — Ты так красива","q":"Quest Pistols Show Ты так красива текст песни"},{"id":"ru104","g":"ru","t":"Скриптонит — Slow Mo","q":"Скриптонит Slow Mo текст песни","note":"файл: Slow Mo — Armich / Скриптонит, фортепиано"},{"id":"ru105","g":"ru","t":"Нурик Бармаков — Ты не такая, как все","q":"Нурик Бармаков Ты не такая, как все текст песни","note":"так подписан файл минуса"},{"id":"ru106","g":"ru","t":"Tural Everest — Вина","q":"Tural Everest Вина текст песни"},{"id":"en01","g":"en","t":"Oasis — Wonderwall","q":"Oasis Wonderwall lyrics"},{"id":"en02","g":"en","t":"My Favorite Things (The Sound of Music)","q":"My Favorite Things (The Sound of Music) lyrics","note":"минус — версия Leslie Odom Jr."},{"id":"en03","g":"en","t":"Jim Croce — Time in a Bottle","q":"Jim Croce Time in a Bottle lyrics"},{"id":"en04","g":"en","t":"Sting — Shape of My Heart","q":"Sting Shape of My Heart lyrics"},{"id":"en05","g":"en","t":"Frank Sinatra — Fly Me to the Moon","q":"Frank Sinatra Fly Me to the Moon lyrics"},{"id":"en06","g":"en","t":"Dear Evan Hansen — If I Could Tell Her","q":"Dear Evan Hansen If I Could Tell Her lyrics"},{"id":"en07","g":"en","t":"Dear Evan Hansen — Requiem","q":"Dear Evan Hansen Requiem lyrics"},{"id":"en08","g":"en","t":"Dear Evan Hansen — Waving Through a Window","q":"Dear Evan Hansen Waving Through a Window lyrics"},{"id":"en09","g":"en","t":"Aloe Blacc — I Need a Dollar","q":"Aloe Blacc I Need a Dollar lyrics"},{"id":"en10","g":"en","t":"Stephen Sanchez — Until I Found You","q":"Stephen Sanchez Until I Found You lyrics"},{"id":"en11","g":"en","t":"Duke Dumont — Ocean Drive","q":"Duke Dumont Ocean Drive lyrics"},{"id":"en12","g":"en","t":"Nat King Cole — L-O-V-E","q":"Nat King Cole L-O-V-E lyrics"},{"id":"en13","g":"en","t":"Robin Schulz — Sugar","q":"Robin Schulz Sugar lyrics"},{"id":"en14","g":"en","t":"Boney M. — Rasputin","q":"Boney M. Rasputin lyrics"},{"id":"en15","g":"en","t":"Boney M. — Sunny","q":"Boney M. Sunny lyrics"},{"id":"en16","g":"en","t":"Céline Dion — My Heart Will Go On","q":"Céline Dion My Heart Will Go On lyrics"},{"id":"en17","g":"en","t":"Chris Isaak — Wicked Game","q":"Chris Isaak Wicked Game lyrics"},{"id":"en18","g":"en","t":"Conan Gray — Heather","q":"Conan Gray Heather lyrics"},{"id":"en19","g":"en","t":"Counting Crows — Accidentally in Love","q":"Counting Crows Accidentally in Love lyrics"},{"id":"en20","g":"en","t":"Craig David — 7 Days","q":"Craig David 7 Days lyrics"},{"id":"en21","g":"en","t":"Daft Punk — Get Lucky","q":"Daft Punk Get Lucky lyrics"},{"id":"en22","g":"en","t":"Daft Punk — Something About Us","q":"Daft Punk Something About Us lyrics"},{"id":"en23","g":"en","t":"Donny Montell — Love Is Blind","q":"Donny Montell Love Is Blind lyrics"},{"id":"en24","g":"en","t":"Earth, Wind & Fire — September","q":"Earth, Wind & Fire September lyrics"},{"id":"en25","g":"en","t":"Ed Sheeran — Bloodstream","q":"Ed Sheeran Bloodstream lyrics"},{"id":"en26","g":"en","t":"Ed Sheeran — Castle on the Hill","q":"Ed Sheeran Castle on the Hill lyrics"},{"id":"en27","g":"en","t":"Ed Sheeran — Dive","q":"Ed Sheeran Dive lyrics"},{"id":"en28","g":"en","t":"Ed Sheeran — Perfect","q":"Ed Sheeran Perfect lyrics"},{"id":"en29","g":"en","t":"Ed Sheeran — Photograph","q":"Ed Sheeran Photograph lyrics"},{"id":"en30","g":"en","t":"Ed Sheeran — Thinking Out Loud","q":"Ed Sheeran Thinking Out Loud lyrics"},{"id":"en31","g":"en","t":"Elliot James Reay — I Think They Call This Love","q":"Elliot James Reay I Think They Call This Love lyrics"},{"id":"en32","g":"en","t":"Frank Ocean — Pink + White","q":"Frank Ocean Pink + White lyrics"},{"id":"en33","g":"en","t":"Frank Sinatra — A Day in the Life of a Fool","q":"Frank Sinatra A Day in the Life of a Fool lyrics"},{"id":"en34","g":"en","t":"Frank Sinatra — Everybody Loves Somebody","q":"Frank Sinatra Everybody Loves Somebody lyrics"},{"id":"en35","g":"en","t":"Killing Me Softly with His Song","q":"Killing Me Softly with His Song lyrics","note":"в папке минусы Sinatra и Fugees — текст один"},{"id":"en36","g":"en","t":"Let It Snow! Let It Snow! Let It Snow!","q":"Let It Snow! Let It Snow! Let It Snow! lyrics","note":"минусы есть у Sinatra и Bublé — текст один"},{"id":"en37","g":"en","t":"Frank Sinatra — Let's Face the Music and Dance","q":"Frank Sinatra Let's Face the Music and Dance lyrics"},{"id":"en38","g":"en","t":"Frank Sinatra — My Way","q":"Frank Sinatra My Way lyrics"},{"id":"en39","g":"en","t":"Frank Sinatra — That's Life","q":"Frank Sinatra That's Life lyrics"},{"id":"en40","g":"en","t":"Frank Sinatra — The Shadow of Your Smile","q":"Frank Sinatra The Shadow of Your Smile lyrics"},{"id":"en41","g":"en","t":"Frank Sinatra — The World We Knew (Over and Over)","q":"Frank Sinatra The World We Knew (Over and Over) lyrics"},{"id":"en42","g":"en","t":"George Michael — Careless Whisper","q":"George Michael Careless Whisper lyrics"},{"id":"en43","g":"en","t":"Joji — Glimpse of Us","q":"Joji Glimpse of Us lyrics"},{"id":"en44","g":"en","t":"Bill Withers — Just the Two of Us","q":"Bill Withers Just the Two of Us lyrics"},{"id":"en45","g":"en","t":"Harry Styles — Watermelon Sugar","q":"Harry Styles Watermelon Sugar lyrics"},{"id":"en46","g":"en","t":"Billie Eilish — WILDFLOWER","q":"Billie Eilish WILDFLOWER lyrics"},{"id":"en47","g":"en","t":"Coldplay — Adventure of a Lifetime","q":"Coldplay Adventure of a Lifetime lyrics"},{"id":"en48","g":"en","t":"Ricky Martin — Livin' la Vida Loca","q":"Ricky Martin Livin' la Vida Loca lyrics","note":"в папке также рок- и джаз-каверы этой песни"},{"id":"en49","g":"en","t":"Josh Groban — Broken Vow","q":"Josh Groban Broken Vow lyrics"},{"id":"en50","g":"en","t":"Josh Groban — Mi Morena","q":"Josh Groban Mi Morena lyrics"},{"id":"en51","g":"en","t":"Over the Rainbow","q":"Over the Rainbow lyrics","note":"минус — версия Josh Groban"},{"id":"en52","g":"en","t":"Justin Timberlake — Cry Me a River","q":"Justin Timberlake Cry Me a River lyrics"},{"id":"en53","g":"en","t":"Justin Timberlake — What Goes Around... Comes Around","q":"Justin Timberlake What Goes Around... Comes Around lyrics"},{"id":"en54","g":"en","t":"K'naan feat. Adam Levine — Bang Bang","q":"K'naan feat. Adam Levine Bang Bang lyrics"},{"id":"en55","g":"en","t":"Lady Gaga & Bruno Mars — Die with a Smile","q":"Lady Gaga & Bruno Mars Die with a Smile lyrics"},{"id":"en56","g":"en","t":"Leonard Cohen — Hallelujah","q":"Leonard Cohen Hallelujah lyrics"},{"id":"en57","g":"en","t":"Listen Up — Solomon","q":"Listen Up Solomon lyrics","note":"так подписан файл минуса — сверь исполнителя"},{"id":"en58","g":"en","t":"Louis Armstrong — What a Wonderful World","q":"Louis Armstrong What a Wonderful World lyrics"},{"id":"en59","g":"en","t":"LP — Lost on You","q":"LP Lost on You lyrics"},{"id":"en60","g":"en","t":"Luke Chiang — Shouldn't Be","q":"Luke Chiang Shouldn't Be lyrics"},{"id":"en61","g":"en","t":"Mac DeMarco — Chamber of Reflection","q":"Mac DeMarco Chamber of Reflection lyrics"},{"id":"en62","g":"en","t":"Måneskin — Beggin'","q":"Måneskin Beggin' lyrics"},{"id":"en63","g":"en","t":"Can't Help Falling in Love","q":"Can't Help Falling in Love lyrics","note":"минус — версия Michael Bublé"},{"id":"en64","g":"en","t":"Frank Sinatra — Come Fly with Me","q":"Frank Sinatra Come Fly with Me lyrics"},{"id":"en65","g":"en","t":"Dream a Little Dream of Me","q":"Dream a Little Dream of Me lyrics","note":"минус — версия Michael Bublé"},{"id":"en66","g":"en","t":"Michael Bublé — Everything","q":"Michael Bublé Everything lyrics"},{"id":"en67","g":"en","t":"Feeling Good","q":"Feeling Good lyrics","note":"минус — версия Michael Bublé"},{"id":"en68","g":"en","t":"It's Beginning to Look a Lot Like Christmas","q":"It's Beginning to Look a Lot Like Christmas lyrics"},{"id":"en69","g":"en","t":"Michael Bublé — Pennies from Heaven","q":"Michael Bublé Pennies from Heaven lyrics"},{"id":"en70","g":"en","t":"Somethin' Stupid","q":"Somethin' Stupid lyrics","note":"минус — версия Michael Bublé (дуэт)"},{"id":"en71","g":"en","t":"This Love (Maroon 5)","q":"This Love (Maroon 5) lyrics","note":"минус подписан «Michael Bublé» — песня Maroon 5"},{"id":"en72","g":"en","t":"Try a Little Tenderness","q":"Try a Little Tenderness lyrics","note":"минус — версия Michael Bublé"},{"id":"en73","g":"en","t":"White Christmas","q":"White Christmas lyrics","note":"минус — версия Michael Bublé"},{"id":"en74","g":"en","t":"Michael Jackson — Billie Jean","q":"Michael Jackson Billie Jean lyrics"},{"id":"en75","g":"en","t":"New West — Those Eyes","q":"New West Those Eyes lyrics"},{"id":"en76","g":"en","t":"OneRepublic — Counting Stars","q":"OneRepublic Counting Stars lyrics"},{"id":"en77","g":"en","t":"Regard & Years & Years — Hallucination","q":"Regard & Years & Years Hallucination lyrics"},{"id":"en78","g":"en","t":"Rob Thomas — Lonely No More","q":"Rob Thomas Lonely No More lyrics"},{"id":"en79","g":"en","t":"Shawn Mendes — Stitches","q":"Shawn Mendes Stitches lyrics"},{"id":"en80","g":"en","t":"Sia — Soon We'll Be Found","q":"Sia Soon We'll Be Found lyrics"},{"id":"en81","g":"en","t":"Ben E. King — Stand by Me","q":"Ben E. King Stand by Me lyrics"},{"id":"en82","g":"en","t":"Teddy Swims — Lose Control","q":"Teddy Swims Lose Control lyrics"},{"id":"en83","g":"en","t":"The Notorious B.I.G. — Hypnotize","q":"The Notorious B.I.G. Hypnotize lyrics"},{"id":"en84","g":"en","t":"Tom Odell — Another Love","q":"Tom Odell Another Love lyrics"},{"id":"en85","g":"en","t":"Twenty One Pilots — Stressed Out","q":"Twenty One Pilots Stressed Out lyrics"},{"id":"en86","g":"en","t":"Elton John & Blue — Sorry Seems to Be the Hardest Word","q":"Elton John & Blue Sorry Seems to Be the Hardest Word lyrics"},{"id":"en87","g":"en","t":"Arctic Monkeys — I Wanna Be Yours","q":"Arctic Monkeys I Wanna Be Yours lyrics"},{"id":"en88","g":"en","t":"Dima Bilan — Believe","q":"Dima Bilan Believe lyrics"},{"id":"en89","g":"en","t":"Alexander Rybak — Fairytale","q":"Alexander Rybak Fairytale lyrics"},{"id":"en90","g":"en","t":"Michael Bublé — Sway","q":"Michael Bublé Sway lyrics"}];
+
+/* ================= ХРАНИЛКА ================= */
+var memStore={}, storageOK=false;
+try{ localStorage.setItem('__c_t','1'); localStorage.removeItem('__c_t'); storageOK=true; }catch(e){}
+function sGet(k){ if(storageOK){ try{return localStorage.getItem(k);}catch(e){} } return (k in memStore)?memStore[k]:null; }
+function sSet(k,v){ if(storageOK){ try{ localStorage.setItem(k,v); return; }catch(e){} } memStore[k]=v; }
+var K='sf_collector_v1';
+var texts={};
+try{ var raw=sGet(K); if(raw){ var d=JSON.parse(raw); if(d && d.texts) texts=d.texts; } }catch(e){}
+
+var saveTm=null;
+function flushSave(){ clearTimeout(saveTm); saveTm=null; sSet(K,JSON.stringify({app:'souffleur-collector',version:1,texts:texts})); }
+function save(){ clearTimeout(saveTm); saveTm=setTimeout(flushSave,250); }
+window.addEventListener('beforeunload',flushSave);
+document.addEventListener('visibilitychange',function(){ if(document.visibilityState==='hidden') flushSave(); });
+
+/* ================= ХЕЛПЕРЫ ================= */
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+var toastTm=null;
+function toast(m){ var t=$('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toastTm); toastTm=setTimeout(function(){t.classList.remove('show');},2400); }
+
+/* чистка вставленного текста */
+function normalize(t){
+  if(!t) return '';
+  t=String(t).replace(/\r\n?/g,'\n').replace(/ /g,' ');
+  var lines=t.split('\n').map(function(l){ return l.replace(/[ \t]+$/,'').replace(/^[ \t]+/,''); });
+  /* убрать типовой мусор с сайтов */
+  var junk=/^(текст песни|слова песни|lyrics|смотреть клип|скачать|поделиться|реклама|печать|копировать текст|исполнитель:|альбом:|перевод(?!\s*[а-яё])|нашли ошибку|поправить|добавить в|слушать(\s|$))/i;
+  lines=lines.filter(function(l){ return !junk.test(l); });
+  /* метки структуры → в формат Суфлёра [Припев] */
+  lines=lines.map(function(l){
+    var m=l.match(/^\[?\s*(припев|қайырмасы|қайырма|chorus|куплет\s*\d*|verse\s*\d*|бридж|bridge|интро|intro|аутро|outro|pre-?chorus|предприпев|проигрыш|финал|шумақ\s*\d*)\s*\]?\s*[:.]?\s*$/i);
+    if(m){ var w=m[1]; w=w.charAt(0).toUpperCase()+w.slice(1); return '['+w+']'; }
+    return l;
+  });
+  var out=lines.join('\n');
+  out=out.replace(/\n{3,}/g,'\n\n').replace(/^\n+/,'').replace(/\n+$/,'');
+  return out;
+}
+
+/* ================= РЕНДЕР ================= */
+var GROUPS=[ ['kz','Казахские'], ['ru','Русские'], ['en','Английские'] ];
+function gName(g){ for(var i=0;i<GROUPS.length;i++) if(GROUPS[i][0]===g) return GROUPS[i][1]; return g; }
+
+function findUrl(s){
+  if(s.u) return s.u;
+  return 'https://www.google.com/search?q='+encodeURIComponent(s.q);
+}
+
+function render(){
+  var list=$('list'); list.innerHTML='';
+  var nav=$('gnav'); nav.innerHTML='';
+  GROUPS.forEach(function(gr){
+    var g=gr[0], nm=gr[1];
+    var items=SONGS.filter(function(s){return s.g===g;});
+    if(!items.length) return;
+    var a=document.createElement('a'); a.href='#g_'+g; a.id='gn_'+g;
+    a.innerHTML=nm+' <span id="gc_'+g+'"></span>'; nav.appendChild(a);
+    var h=document.createElement('div'); h.className='sect'; h.id='g_'+g;
+    h.innerHTML='<span>'+nm+'</span><span class="c" id="gs_'+g+'"></span>';
+    list.appendChild(h);
+    items.forEach(function(s,idx){
+      var art=document.createElement('article');
+      art.className='song'; art.id='card_'+s.id;
+      art.innerHTML=
+        '<div class="head">'+
+          '<span class="num">'+(idx+1)+'</span>'+
+          '<div class="t" data-open="'+s.id+'">'+esc(s.t)+(s.note?'<small>'+esc(s.note)+'</small>':'')+'</div>'+
+          '<span class="ok-ic">✓</span>'+
+          '<a class="btn find" href="'+esc(findUrl(s))+'" target="_blank" rel="noopener">Найти текст</a>'+
+          '<button class="btn paste" data-paste="'+s.id+'">Вставить</button>'+
+          '<span class="chev" data-open="'+s.id+'">▾</span>'+
+        '</div>'+
+        '<div class="body">'+
+          '<textarea id="ta_'+s.id+'" placeholder="Вставь сюда текст песни (Ctrl+V)…"></textarea>'+
+          '<div class="rowbtns">'+
+            '<button class="btn ghost" data-clear="'+s.id+'">Очистить</button>'+
+          '</div>'+
+        '</div>';
+      list.appendChild(art);
+      var ta=art.querySelector('textarea');
+      if(texts[s.id]) ta.value=texts[s.id];
+      ta.addEventListener('input',function(){ setText(s.id,ta.value,false); });
+      ta.addEventListener('paste',function(){ setTimeout(function(){ var v=normalize(ta.value); ta.value=v; setText(s.id,v,false); },30); });
+    });
+  });
+  $('totalN').textContent=SONGS.length;
+  $('pTotal').textContent=SONGS.length;
+  refresh();
+}
+
+function setText(id,val,fill){
+  if(fill!==false){ var ta=$('ta_'+id); if(ta) ta.value=val; }
+  if(val && val.trim()){ texts[id]=val; } else { delete texts[id]; }
+  save(); refresh();
+}
+
+function refresh(){
+  var done=0;
+  SONGS.forEach(function(s){
+    var c=$('card_'+s.id); if(!c) return;
+    var has=!!(texts[s.id]&&texts[s.id].trim());
+    c.classList.toggle('filled',has);
+    if(has) done++;
+  });
+  GROUPS.forEach(function(gr){
+    var g=gr[0];
+    var items=SONGS.filter(function(s){return s.g===g;});
+    var d=items.filter(function(s){return texts[s.id]&&texts[s.id].trim();}).length;
+    var el=$('gs_'+g); if(el) el.textContent=d+' / '+items.length;
+    var el2=$('gc_'+g); if(el2) el2.textContent=d+'/'+items.length;
+  });
+  $('pDone').textContent=done;
+  var pct=SONGS.length?Math.round(done*100/SONGS.length):0;
+  $('pPct').textContent=pct+'%';
+  $('pFill').style.width=pct+'%';
+  var dl=$('dlBtn');
+  var n=$('inclEmpty').checked?SONGS.length:done;
+  dl.disabled=!n;
+  dl.textContent=n?('Скачать файл для Суфлёра ('+ruSongs(n)+')'):'Скачать файл для Суфлёра';
+}
+function ruSongs(n){ var a=n%10,b=n%100; if(a===1&&b!==11)return n+' песня'; if(a>=2&&a<=4&&(b<10||b>=20))return n+' песни'; return n+' песен'; }
+
+/* клики по списку */
+document.addEventListener('click',function(e){
+  var t=e.target.closest('[data-open],[data-paste],[data-clear]');
+  if(!t) return;
+  var id;
+  if(t.hasAttribute('data-open')){
+    id=t.getAttribute('data-open');
+    $('card_'+id).classList.toggle('open');
+  } else if(t.hasAttribute('data-paste')){
+    id=t.getAttribute('data-paste');
+    doPaste(id);
+  } else if(t.hasAttribute('data-clear')){
+    id=t.getAttribute('data-clear');
+    setText(id,'');
+  }
+});
+
+function doPaste(id){
+  if(navigator.clipboard && navigator.clipboard.readText){
+    navigator.clipboard.readText().then(function(t){
+      t=normalize(t);
+      if(!t){ toast('В буфере пусто — сначала скопируй текст на сайте'); return; }
+      setText(id,t);
+      var card=$('card_'+id);
+      card.classList.remove('open');
+      toast('Готово ✓ '+(SONGS.length-Object.keys(texts).length)+' осталось');
+    }).catch(function(){
+      var card=$('card_'+id); card.classList.add('open');
+      $('ta_'+id).focus(); toast('Нажми Ctrl+V в поле — браузер не дал прочитать буфер');
+    });
+  } else {
+    var card=$('card_'+id); card.classList.add('open');
+    $('ta_'+id).focus(); toast('Нажми Ctrl+V в поле');
+  }
+}
+
+/* ================= ФАЙЛ ДЛЯ СУФЛЁРА ================= */
+function buildPayload(includeEmpty){
+  var included=SONGS.filter(function(s){ return includeEmpty || (texts[s.id]&&texts[s.id].trim()); });
+  var songs=included.map(function(s){
+    var t=texts[s.id]&&texts[s.id].trim()?texts[s.id]:'[Текст ещё не добавлен]\n\nОткрой эту песню в редакторе (✎)\nи вставь текст, когда найдёшь.';
+    return {id:s.id,title:s.t,text:t};
+  });
+  var sets=[];
+  GROUPS.forEach(function(gr){
+    var ids=included.filter(function(s){return s.g===gr[0];}).map(function(s){return s.id;});
+    if(ids.length) sets.push({id:'set_'+gr[0],name:gr[1],songIds:ids});
+  });
+  return {app:'souffleur',version:1,exported:new Date().toISOString(),songs:songs,sets:sets};
+}
+window.__buildPayload=buildPayload; /* для проверки */
+
+function dl(name,data){
+  var blob=new Blob([data],{type:'application/json'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download=name;
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },800);
+}
+function stamp(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+
+$('dlBtn').addEventListener('click',function(){
+  var p=buildPayload($('inclEmpty').checked);
+  if(!p.songs.length){ toast('Пока ни одного текста'); return; }
+  var name='суфлёр_каталог_'+stamp()+'.json';
+  dl(name,JSON.stringify(p,null,1));
+  $('dlName').textContent=name;
+  $('afterModal').classList.add('show');
+});
+$('dlSiteBtn').addEventListener('click',function(){
+  var p=buildPayload($('inclEmpty').checked);
+  if(!p.songs.length){ toast('Пока ни одного текста'); return; }
+  dl('songs.json',JSON.stringify(p,null,1));
+  toast('songs.json скачан — загрузи его в репозиторий souffleur, и все устройства подтянут каталог');
+});
+$('afterClose').addEventListener('click',function(){ $('afterModal').classList.remove('show'); });
+document.querySelector('#afterModal .dim').addEventListener('click',function(){ $('afterModal').classList.remove('show'); });
+$('inclEmpty').addEventListener('change',refresh);
+
+/* черновики */
+$('draftSaveBtn').addEventListener('click',function(){
+  dl('сборщик_черновик_'+stamp()+'.json',JSON.stringify({app:'souffleur-collector',version:1,texts:texts},null,1));
+  toast('Черновик сохранён в Загрузки ✓');
+});
+var df=document.createElement('input'); df.type='file'; df.accept='application/json,.json'; df.style.display='none';
+document.body.appendChild(df);
+$('draftLoadBtn').addEventListener('click',function(){ df.click(); });
+df.addEventListener('change',function(){
+  var f=df.files&&df.files[0]; df.value=''; if(!f) return;
+  var r=new FileReader();
+  r.onload=function(){
+    try{
+      var d=JSON.parse(r.result);
+      var src=null;
+      if(d && d.texts) src=d.texts;
+      else if(d && Array.isArray(d.songs)){ src={}; d.songs.forEach(function(s){ if(s.id&&s.text) src[s.id]=s.text; }); }
+      if(!src) throw 0;
+      var n=0;
+      Object.keys(src).forEach(function(k){ if(src[k]&&String(src[k]).trim()){ texts[k]=String(src[k]); n++; } });
+      save();
+      SONGS.forEach(function(s){ var ta=$('ta_'+s.id); if(ta) ta.value=texts[s.id]||''; });
+      refresh(); toast('Загружено текстов: '+n+' ✓');
+    }catch(e){ toast('Это не похоже на черновик сборщика'); }
+  };
+  r.readAsText(f);
+});
+
+/* инструкция сворачивается */
+$('foldBtn').addEventListener('click',function(){
+  var h=$('howto'); h.classList.toggle('folded');
+  $('foldBtn').textContent=h.classList.contains('folded')?'Показать инструкцию':'Понятно, свернуть';
+  sSet('sf_c_howto',h.classList.contains('folded')?'1':'0');
+});
+if(sGet('sf_c_howto')==='1'){ $('howto').classList.add('folded'); $('foldBtn').textContent='Показать инструкцию'; }
+
+/* тема */
+function applyTheme(t){ document.documentElement.setAttribute('data-theme',t); }
+var th=sGet('sf_c_theme')||'dark'; applyTheme(th);
+$('themeBtn').addEventListener('click',function(){
+  th=(th==='dark')?'light':'dark'; applyTheme(th); sSet('sf_c_theme',th);
+});
+
+if(!storageOK) toast('Внимание: браузер не сохраняет черновик — не закрывай вкладку, пока не скачаешь файл');
+
+render();
+</script>
+</body>
+</html>

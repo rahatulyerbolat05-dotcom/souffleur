@@ -273,6 +273,11 @@ html[data-theme="light"] .lyrics .tagline{background:rgba(47,111,208,.1);}
 @media (min-width:700px){
   .homegrid{grid-template-columns:repeat(4,1fr);}
 }
+/* кнопка сброса скорости песни к общей */
+.speedwrap .speedreset{margin-top:9px;width:100%;border:1px solid var(--line);background:var(--card-2);
+  color:var(--ink-soft);font-size:12.5px;font-weight:700;padding:9px;border-radius:10px;display:none;}
+.speedwrap .speedreset.show{display:block;}
+.speedwrap .speedreset:active{color:var(--ink);}
 </style>
 </head>
 <body>
@@ -300,6 +305,7 @@ html[data-theme="light"] .lyrics .tagline{background:rgba(47,111,208,.1);}
   <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
   <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></symbol>
   <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></symbol>
 </defs></svg>
 
 <!-- ================= ГЛАВНАЯ ================= -->
@@ -313,7 +319,7 @@ html[data-theme="light"] .lyrics .tagline{background:rgba(47,111,208,.1);}
       <div class="mark"><svg class="isv" style="width:26px;height:26px"><use href="#i-mic"/></svg></div>
       <div>
         <h1>Суфлёр</h1>
-        <p>Тексты песен — всегда под рукой на сцене</p>
+        <p>Тексты песен — всегда под рукой на сцене · v3</p>
       </div>
       <button type="button" class="themebtn" id="themeBtn" aria-label="Переключить тему">
         <svg class="isv" id="themeIcon"><use href="#i-sun"/></svg>
@@ -340,6 +346,11 @@ html[data-theme="light"] .lyrics .tagline{background:rgba(47,111,208,.1);}
         <svg class="isv"><use href="#i-upload"/></svg>
         Восстановить
         <span class="note">из файла копии</span>
+      </button>
+      <button type="button" class="hbtn" id="syncBtn">
+        <svg class="isv"><use href="#i-refresh"/></svg>
+        Обновить с сайта
+        <span class="note" id="syncNote">каталог песен</span>
       </button>
     </div>
     <input type="file" id="importFile" accept="application/json,.json" style="display:none">
@@ -442,8 +453,9 @@ html[data-theme="light"] .lyrics .tagline{background:rgba(47,111,208,.1);}
       <button type="button" class="sfbtn sq" id="fontPlus" aria-label="Крупнее"><span style="font-size:16px;font-weight:800">А+</span></button>
       <button type="button" class="sfbtn nav" id="nextBtn" aria-label="Следующая песня"><svg class="isv"><use href="#i-next"/></svg></button>
       <div class="speedwrap" id="speedWrap">
-        <div class="lbl"><span>Скорость прокрутки</span><span id="speedVal">3</span></div>
+        <div class="lbl"><span id="speedLbl">Скорость прокрутки</span><span id="speedVal">3</span></div>
         <input type="range" id="speedRange" min="1" max="10" step="1" value="3">
+        <button type="button" class="speedreset" id="speedReset">Сбросить к общей скорости</button>
       </div>
     </div>
   </div>
@@ -493,6 +505,10 @@ function loadJSON(k,fb){ try{ var v=sGet(k); return v?JSON.parse(v):fb; }catch(e
 var songs=loadJSON(K_SONGS,null);
 var sets=loadJSON(K_SETS,null);
 var cfg=loadJSON(K_CFG,{font:24,speed:3,theme:'dark'});
+var K_SYNC='sf_sync_v1';
+var sync=loadJSON(K_SYNC,{catalogTs:null,deletedIds:[]});
+if(!Array.isArray(sync.deletedIds)) sync.deletedIds=[];
+function saveSync(){ sSet(K_SYNC,JSON.stringify(sync)); }
 
 /* первый запуск — примеры, чтобы было видно, как это работает */
 if(!songs){
@@ -634,7 +650,7 @@ $('saveSongBtn').addEventListener('click',function(){
   if(!title){ toast('Дай песне название'); $('f_title').focus(); return; }
   if(!text.trim()){ toast('Вставь текст песни'); $('f_text').focus(); return; }
   if(editSongId){
-    var s=songById(editSongId); if(s){ s.title=title; s.text=text; }
+    var s=songById(editSongId); if(s){ s.title=title; s.text=text; s.m=1; }
   } else {
     songs.push({id:uid(),title:title,text:text});
   }
@@ -645,6 +661,7 @@ $('delSongBtn').addEventListener('click',function(){
   ask('Удалить эту песню? Она пропадёт и из сэтов.',function(){
     songs=songs.filter(function(s){ return s.id!==editSongId; });
     sets.forEach(function(st){ st.songIds=st.songIds.filter(function(id){ return id!==editSongId; }); });
+    if(sync.deletedIds.indexOf(editSongId)===-1){ sync.deletedIds.push(editSongId); saveSync(); }
     saveSongs(); saveSets(); renderCatalog(); show('Catalog'); toast('Песня удалена');
   });
 });
@@ -753,6 +770,7 @@ function renderStageSong(resetScroll){
   document.documentElement.style.setProperty('--lyr',cfg.font+'px');
   $('prevBtn').disabled = stageIdx===0;
   $('nextBtn').disabled = stageIdx===stageSet.ids.length-1;
+  syncSpeedUI();
   stopScroll();
   if(resetScroll!==false) $('stageBody').scrollTop=0;
 }
@@ -778,7 +796,19 @@ $('fontPlus').addEventListener('click',function(){ setFont(2); });
 
 /* ---- автопрокрутка ---- */
 var scrolling=false, rafId=null, lastTs=0, speedHold=null, scrollPos=0;
-function pxPerSec(){ return 8 + (cfg.speed||3)*7; }  /* 15…78 px/с */
+function curStageSong(){ return (typeof stageSet!=='undefined' && stageSet)?songById(stageSet.ids[stageIdx]):null; }
+function effSpeed(){ var s=curStageSong(); return (s && s.spd)?s.spd:(cfg.speed||3); }
+function pxPerSec(){ return 8 + effSpeed()*7; }  /* 15…78 px/с */
+/* слайдер показывает скорость текущей песни (или общую) */
+function syncSpeedUI(){
+  var s=curStageSong(); if(!s) return;
+  var own=!!s.spd;
+  var v=own?s.spd:(cfg.speed||3);
+  $('speedRange').value=v;
+  $('speedVal').textContent=v;
+  $('speedLbl').textContent=own?'Скорость — своя у песни':'Скорость — общая';
+  $('speedReset').classList.toggle('show',own);
+}
 function tick(ts){
   if(!scrolling) return;
   var el=$('stageBody');
@@ -819,7 +849,17 @@ $('scrollBtn').addEventListener('touchstart',function(){
 $('scrollBtn').addEventListener('touchend',function(){ clearTimeout(speedHold); },{passive:true});
 $('scrollBtn').addEventListener('contextmenu',function(e){ e.preventDefault(); $('speedWrap').classList.add('show'); });
 $('speedRange').addEventListener('input',function(){
-  cfg.speed=+this.value; $('speedVal').textContent=this.value; saveCfg();
+  var v=+this.value;
+  var s=curStageSong();
+  if(s){ s.spd=v; saveSongs(); }        /* запоминаем именно для этой песни */
+  else { cfg.speed=v; saveCfg(); }
+  $('speedVal').textContent=v;
+  if(s){ $('speedLbl').textContent='Скорость — своя у песни'; $('speedReset').classList.add('show'); }
+});
+$('speedReset').addEventListener('click',function(){
+  var s=curStageSong(); if(!s) return;
+  delete s.spd; saveSongs(); syncSpeedUI();
+  toast('У песни снова общая скорость');
 });
 document.addEventListener('click',function(e){
   var w=$('speedWrap');
@@ -912,7 +952,10 @@ $('importFile').addEventListener('change',function(){
       if(!d || !Array.isArray(d.songs) || !Array.isArray(d.sets)) throw 0;
       ask('Заменить текущий каталог и сэты данными из файла ('+ruSongs(d.songs.length)+')?',function(){
         songs=d.songs; sets=d.sets;
-        saveSongs(); saveSets(); renderHome(); toast('Восстановлено ✓');
+        sync.catalogTs=d.exported||null; sync.deletedIds=[]; saveSync();
+        saveSongs(); saveSets(); renderHome();
+        if(typeof noteTs==='function') $('syncNote').textContent=noteTs();
+        toast('Восстановлено ✓');
       });
     }catch(e){ toast('Файл не похож на копию Суфлёра'); }
   };
@@ -927,6 +970,78 @@ $('importFile').addEventListener('change',function(){
   if(bad) $('qlWarn').classList.add('show');
 })();
 
+/* ===================================================================== КАТАЛОГ С САЙТА (songs.json) */
+function applyCatalog(d){
+  var del={}; (sync.deletedIds||[]).forEach(function(i){ del[i]=1; });
+  /* нетронутые примеры первого запуска убираем, когда пришёл настоящий каталог */
+  var onlyDemo = songs.length>0 && songs.every(function(s){ return (s.id==='demo1'||s.id==='demo2') && !s.m; });
+  if(onlyDemo){
+    songs=[];
+    sets=sets.filter(function(st){ return st.id!=='demoset'; });
+  }
+  var n=0;
+  d.songs.forEach(function(rs){
+    if(!rs || !rs.id || !rs.title || typeof rs.text==='undefined') return;
+    if(del[rs.id]) return;                        /* удалённую тобой песню не возвращаем */
+    var loc=songById(rs.id);
+    if(loc){
+      if(loc.m) return;                           /* правленную вручную не трогаем */
+      if(loc.title!==rs.title || loc.text!==String(rs.text)){ loc.title=rs.title; loc.text=String(rs.text); n++; }
+    } else {
+      songs.push({id:rs.id,title:rs.title,text:String(rs.text)});
+      n++;
+    }
+  });
+  if(Array.isArray(d.sets)){
+    d.sets.forEach(function(rst){
+      if(!rst || !rst.id || !Array.isArray(rst.songIds)) return;
+      var ids=rst.songIds.filter(function(i){ return !!songById(i); });
+      var loc=setById(rst.id);
+      if(loc){ loc.name=rst.name||loc.name; loc.songIds=ids; }
+      else if(ids.length){ sets.push({id:rst.id,name:rst.name||'Сэт',songIds:ids}); }
+    });
+  }
+  saveSongs(); saveSets();
+  return n;
+}
+function noteTs(){
+  if(!sync.catalogTs) return 'каталог песен';
+  var d=new Date(sync.catalogTs);
+  if(isNaN(d.getTime())) return 'каталог песен';
+  return 'с сайта от '+String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+d.getFullYear();
+}
+var syncBusy=false;
+function syncFromSite(manual){
+  if(syncBusy) return;
+  if(location.protocol==='file:'){ if(manual) toast('Обновление работает только на сайте (по ссылке)'); return; }
+  syncBusy=true;
+  if(manual) $('syncNote').textContent='проверяю…';
+  fetch('songs.json?ts='+Date.now(),{cache:'no-store'}).then(function(r){
+    if(!r.ok) throw 'nf';
+    return r.json();
+  }).then(function(d){
+    if(!d || !Array.isArray(d.songs)) throw 'bad';
+    var fresh = d.exported ? (d.exported!==sync.catalogTs) : true;
+    if(!fresh){
+      if(manual){ $('syncNote').textContent=noteTs(); toast('Каталог уже самый свежий ✓'); }
+      syncBusy=false; return;
+    }
+    var n=applyCatalog(d);
+    sync.catalogTs=d.exported||new Date().toISOString(); saveSync();
+    renderHome();
+    $('syncNote').textContent=noteTs();
+    toast(n>0?('Каталог обновлён с сайта: +'+ruSongs(n)+' ✓'):'Каталог сверен с сайтом ✓');
+    syncBusy=false;
+  }).catch(function(e){
+    if(manual){
+      $('syncNote').textContent=noteTs();
+      toast(e==='nf'?'На сайте пока нет файла songs.json':'Не получилось — проверь интернет');
+    }
+    syncBusy=false;
+  });
+}
+$('syncBtn').addEventListener('click',function(){ syncFromSite(true); });
+
 /* ===================================================================== SERVICE WORKER (только на хостинге) */
 if('serviceWorker' in navigator && location.protocol==='https:'){
   navigator.serviceWorker.register('sw.js').catch(function(){});
@@ -937,6 +1052,8 @@ applyTheme();
 $('speedRange').value=cfg.speed||3;
 $('speedVal').textContent=cfg.speed||3;
 renderHome();
+$('syncNote').textContent=noteTs();
+syncFromSite(false);
 
 })();
 </script>

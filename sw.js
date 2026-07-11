@@ -1,5 +1,5 @@
 /* Суфлёр — офлайн-кэш */
-var CACHE='souffleur-v1';
+var CACHE='souffleur-v3';
 var ASSETS=['./','./index.html','./manifest.json','./icon-180.png','./icon-512.png'];
 self.addEventListener('install',function(e){
   e.waitUntil(caches.open(CACHE).then(function(c){ return c.addAll(ASSETS); }).then(function(){ return self.skipWaiting(); }));
@@ -11,6 +11,17 @@ self.addEventListener('activate',function(e){
 });
 self.addEventListener('fetch',function(e){
   if(e.request.method!=='GET') return;
+  /* каталог songs.json — всегда сначала сеть (иначе не увидим обновлений), офлайн — из кэша */
+  if(e.request.url.split('?')[0].indexOf('songs.json')!==-1){
+    e.respondWith(
+      fetch(e.request).then(function(res){
+        var copy=res.clone();
+        caches.open(CACHE).then(function(c){ c.put(e.request,copy); });
+        return res;
+      }).catch(function(){ return caches.match(e.request,{ignoreSearch:true}); })
+    );
+    return;
+  }
   e.respondWith(
     caches.match(e.request,{ignoreSearch:true}).then(function(hit){
       if(hit) return hit;
