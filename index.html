@@ -278,6 +278,24 @@ html[data-theme="light"] .lyrics .tagline{background:rgba(47,111,208,.1);}
   color:var(--ink-soft);font-size:12.5px;font-weight:700;padding:9px;border-radius:10px;display:none;}
 .speedwrap .speedreset.show{display:block;}
 .speedwrap .speedreset:active{color:var(--ink);}
+/* шторка публикации на сайт */
+.pubsheet{position:fixed;inset:0;z-index:55;display:none;align-items:flex-end;justify-content:center;}
+.pubsheet.show{display:flex;}
+.pubsheet .dim{position:absolute;inset:0;background:rgba(0,0,0,.6);}
+.pubsheet .box{position:relative;width:100%;max-width:520px;background:var(--bg-2);border:1px solid var(--line);
+  border-radius:22px 22px 0 0;padding:20px 18px calc(18px + var(--sab));}
+.pubsheet h3{margin:0 0 8px;font-size:17px;font-weight:800;}
+.pubsheet .hint{margin:0 0 14px;font-size:13px;color:var(--ink-soft);line-height:1.5;}
+.pubsheet input{width:100%;font-size:16px;color:var(--ink);background:var(--card);border:1.5px solid var(--line);
+  border-radius:12px;padding:12px 13px;-webkit-appearance:none;appearance:none;}
+.pubsheet input:focus{border-color:var(--accent);outline:none;}
+.pubsheet .btnrow2{display:flex;gap:10px;margin-top:14px;}
+.pubsheet .pbtn{flex:1;height:50px;border:0;border-radius:13px;font-size:15px;font-weight:800;}
+.pubsheet .primary{background:var(--accent);color:var(--accent-ink);}
+.pubsheet .primary:disabled{opacity:.55;}
+.pubsheet .ghost{background:var(--card);color:var(--ink);border:1px solid var(--line);}
+.pubsheet .danger-ghost{width:100%;margin-top:10px;background:transparent;border:0;color:var(--danger);
+  font-size:13px;font-weight:700;padding:10px;}
 </style>
 </head>
 <body>
@@ -306,6 +324,7 @@ html[data-theme="light"] .lyrics .tagline{background:rgba(47,111,208,.1);}
   <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></symbol>
   <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></symbol>
   <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></symbol>
+  <symbol id="i-cloudup" viewBox="0 0 24 24"><path d="M4 14.9A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.24"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></symbol>
 </defs></svg>
 
 <!-- ================= ГЛАВНАЯ ================= -->
@@ -319,7 +338,7 @@ html[data-theme="light"] .lyrics .tagline{background:rgba(47,111,208,.1);}
       <div class="mark"><svg class="isv" style="width:26px;height:26px"><use href="#i-mic"/></svg></div>
       <div>
         <h1>Суфлёр</h1>
-        <p>Тексты песен — всегда под рукой на сцене · v3</p>
+        <p>Тексты песен — всегда под рукой на сцене · v4</p>
       </div>
       <button type="button" class="themebtn" id="themeBtn" aria-label="Переключить тему">
         <svg class="isv" id="themeIcon"><use href="#i-sun"/></svg>
@@ -352,8 +371,30 @@ html[data-theme="light"] .lyrics .tagline{background:rgba(47,111,208,.1);}
         Обновить с сайта
         <span class="note" id="syncNote">каталог песен</span>
       </button>
+      <button type="button" class="hbtn" id="pubBtn">
+        <svg class="isv"><use href="#i-cloudup"/></svg>
+        Отправить на сайт
+        <span class="note">каталог → GitHub</span>
+      </button>
     </div>
     <input type="file" id="importFile" accept="application/json,.json" style="display:none">
+  </div>
+</div>
+
+<!-- шторка «Отправить на сайт» -->
+<div class="pubsheet" id="pubSheet">
+  <div class="dim" id="pubDim"></div>
+  <div class="box">
+    <h3>Отправить на сайт</h3>
+    <p class="hint" id="pubMsg">Каталог улетит в твой репозиторий GitHub.</p>
+    <label for="pubTok">Ключ доступа GitHub</label>
+    <input type="password" id="pubTok" placeholder="github_pat_…" autocomplete="off">
+    <div class="hint" style="margin-top:8px">Ключ делается один раз на github.com (инструкция — у Клода). Хранится только на этом устройстве, как пароль.</div>
+    <div class="btnrow2">
+      <button type="button" class="pbtn primary" id="pubGo">Отправить каталог</button>
+      <button type="button" class="pbtn ghost" id="pubCancel">Закрыть</button>
+    </div>
+    <button type="button" class="pbtn danger-ghost" id="pubForget" style="display:none">Забыть ключ на этом устройстве</button>
   </div>
 </div>
 
@@ -986,9 +1027,12 @@ function applyCatalog(d){
     var loc=songById(rs.id);
     if(loc){
       if(loc.m) return;                           /* правленную вручную не трогаем */
+      if(typeof rs.spd==='number') loc.spd=rs.spd; /* скорость тоже разлетается */
       if(loc.title!==rs.title || loc.text!==String(rs.text)){ loc.title=rs.title; loc.text=String(rs.text); n++; }
     } else {
-      songs.push({id:rs.id,title:rs.title,text:String(rs.text)});
+      var ns={id:rs.id,title:rs.title,text:String(rs.text)};
+      if(typeof rs.spd==='number') ns.spd=rs.spd;
+      songs.push(ns);
       n++;
     }
   });
@@ -1041,6 +1085,57 @@ function syncFromSite(manual){
   });
 }
 $('syncBtn').addEventListener('click',function(){ syncFromSite(true); });
+
+/* ===================================================================== ПУБЛИКАЦИЯ НА САЙТ (GitHub) */
+var K_PUB='sf_pub_v1';
+var PUB={owner:'rahatulyerbolat05-dotcom',repo:'souffleur',path:'songs.json',branch:'main'};
+function b64utf8(s){ return btoa(unescape(encodeURIComponent(s))); }
+$('pubBtn').addEventListener('click',function(){
+  $('pubTok').value=sGet(K_PUB)||'';
+  $('pubForget').style.display=sGet(K_PUB)?'':'none';
+  $('pubMsg').textContent='Каталог ('+ruSongs(songs.length)+') улетит в твой репозиторий GitHub, и другие устройства подтянут его при запуске.';
+  $('pubSheet').classList.add('show');
+});
+function closePubSheet(){ $('pubSheet').classList.remove('show'); }
+$('pubCancel').addEventListener('click',closePubSheet);
+$('pubDim').addEventListener('click',closePubSheet);
+$('pubForget').addEventListener('click',function(){
+  sSet(K_PUB,''); $('pubTok').value=''; $('pubForget').style.display='none';
+  toast('Ключ удалён с этого устройства');
+});
+$('pubGo').addEventListener('click',function(){
+  var tok=$('pubTok').value.trim();
+  if(!tok){ toast('Сначала вставь ключ доступа'); $('pubTok').focus(); return; }
+  sSet(K_PUB,tok); $('pubForget').style.display='';
+  var btn=$('pubGo'); btn.disabled=true; btn.textContent='Отправляю…';
+  function done(msg,ok){
+    btn.disabled=false; btn.textContent='Отправить каталог';
+    toast(msg); if(ok) closePubSheet();
+  }
+  var exported=new Date().toISOString();
+  var body=JSON.stringify({app:'souffleur',version:1,exported:exported,songs:songs,sets:sets},null,1);
+  var api='https://api.github.com/repos/'+PUB.owner+'/'+PUB.repo+'/contents/'+PUB.path;
+  var H={'Authorization':'Bearer '+tok,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'};
+  fetch(api+'?ref='+PUB.branch,{headers:H,cache:'no-store'}).then(function(r){
+    if(r.status===401||r.status===403) throw 'auth';
+    if(r.status===404) return null;                 /* файла ещё нет — создадим */
+    if(!r.ok) throw 'err';
+    return r.json();
+  }).then(function(cur){
+    var put={message:'Суфлёр: каталог с устройства ('+ruSongs(songs.length)+')',content:b64utf8(body),branch:PUB.branch};
+    if(cur && cur.sha) put.sha=cur.sha;
+    return fetch(api,{method:'PUT',headers:H,body:JSON.stringify(put)});
+  }).then(function(r){
+    if(r.status===401||r.status===403||r.status===404) throw 'auth';
+    if(r.status===409) throw 'again';
+    if(!r.ok) throw 'err';
+    sync.catalogTs=exported; saveSync();
+    $('syncNote').textContent=noteTs();
+    done('Отправлено на сайт ✓ '+ruSongs(songs.length),true);
+  }).catch(function(e){
+    done(e==='auth'?'Ключ не подходит или нет доступа к репозиторию':(e==='again'?'Сайт занят — попробуй ещё раз через минуту':'Не получилось — проверь интернет'),false);
+  });
+});
 
 /* ===================================================================== SERVICE WORKER (только на хостинге) */
 if('serviceWorker' in navigator && location.protocol==='https:'){
