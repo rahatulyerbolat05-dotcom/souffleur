@@ -66,6 +66,26 @@ a{color:var(--link);}
 .nextempty:active{transform:scale(.96);background:var(--card-2);}
 .song.jump{border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,180,84,.25);}
 
+/* конвейер */
+.conv{margin:12px 0 4px;}
+.convstart{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:0;
+  background:linear-gradient(145deg,var(--accent),#ff8f3d);color:var(--accent-ink);font-size:15.5px;font-weight:800;
+  padding:16px;border-radius:var(--radius);box-shadow:0 6px 18px -6px rgba(255,150,60,.45);}
+.convstart:active{transform:scale(.98);}
+.convbar{display:none;background:var(--card);border:1.5px solid var(--accent);border-radius:var(--radius);
+  padding:14px;box-shadow:0 10px 30px -12px rgba(0,0,0,.5);}
+.convbar.show{display:block;}
+.convbar .ct{font-size:16px;font-weight:800;letter-spacing:-.01em;}
+.convbar .cn{font-size:12px;color:var(--ink-soft);font-weight:700;margin-top:2px;}
+.convbar .chint{font-size:12.5px;color:var(--ink-soft);margin-top:8px;line-height:1.45;}
+.convbar .cbtns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.convbar .cbtn{flex:1;min-width:120px;height:52px;border:0;border-radius:12px;font-size:14.5px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;}
+.convbar .cfind{background:var(--accent);color:var(--accent-ink);}
+.convbar .cpaste{background:var(--ok);color:var(--ok-ink);}
+.convbar .cmini{flex:0 0 auto;min-width:0;padding:0 14px;background:var(--card-2);color:var(--ink-soft);}
+.convbar .cbtn:active{transform:scale(.97);}
+
 /* якоря групп */
 .gnav{display:flex;gap:8px;margin:10px 0 4px;flex-wrap:wrap;}
 .gnav a{flex:1;min-width:130px;text-decoration:none;text-align:center;background:var(--card);color:var(--ink);
@@ -169,6 +189,21 @@ html[data-theme="light"] .song .find{color:#8a5406;}
   <div class="prog">
     <div class="pbar"><div class="pfill" id="pFill"></div></div>
     <div class="ptext"><span>Заполнено: <span class="done" id="pDone">0</span> из <span id="pTotal">0</span></span><span id="pPct">0%</span><button type="button" class="nextempty" id="nextEmpty">→ к пустой</button></div>
+  </div>
+
+  <div class="conv" id="conv">
+    <button type="button" class="convstart" id="convStart">⚡ Конвейер — заполнять подряд, без поиска по списку</button>
+    <div class="convbar" id="convBar">
+      <div class="ct" id="convTitle">—</div>
+      <div class="cn" id="convLeft"></div>
+      <div class="chint" id="convHint">Нажми «Найти текст» — откроется страница. Скопируй там текст, вернись сюда и нажми «Вставить».</div>
+      <div class="cbtns">
+        <button type="button" class="cbtn cfind" id="convFind">Найти текст ↗</button>
+        <button type="button" class="cbtn cpaste" id="convPaste">📋 Вставить</button>
+        <button type="button" class="cbtn cmini" id="convSkip">Пропустить</button>
+        <button type="button" class="cbtn cmini" id="convStop">Стоп</button>
+      </div>
+    </div>
   </div>
 
   <nav class="gnav" id="gnav"></nav>
@@ -426,7 +461,11 @@ df.addEventListener('change',function(){
   var r=new FileReader();
   r.onload=function(){
     try{
-      var d=JSON.parse(r.result);
+      /* терпимый разбор: убираем BOM, обёртку ```…``` и болтовню вокруг JSON */
+      var raw=String(r.result).replace(/^\uFEFF/,'');
+      var a=raw.indexOf('{'), b=raw.lastIndexOf('}');
+      if(a>0 || (b>=0 && b<raw.length-1)){ if(a>=0&&b>a) raw=raw.slice(a,b+1); }
+      var d=JSON.parse(raw);
       var src=null;
       if(d && d.texts) src=d.texts;
       else if(d && Array.isArray(d.songs)){ src={}; d.songs.forEach(function(s){ if(s.id&&s.text) src[s.id]=s.text; }); }
@@ -439,6 +478,82 @@ df.addEventListener('change',function(){
     }catch(e){ toast('Это не похоже на черновик сборщика'); }
   };
   r.readAsText(f);
+});
+
+/* ================= КОНВЕЙЕР ================= */
+var convTarget=null;
+function songByIdC(id){ for(var i=0;i<SONGS.length;i++) if(SONGS[i].id===id) return SONGS[i]; return null; }
+function nextEmptyId(afterId){
+  var order=SONGS.map(function(s){return s.id;});
+  var start=0;
+  if(afterId){ var li=order.indexOf(afterId); if(li>=0) start=li+1; }
+  for(var k=0;k<order.length;k++){
+    var id=order[(start+k)%order.length];
+    if(!(texts[id]&&texts[id].trim())) return id;
+  }
+  return null;
+}
+function convUpdate(){
+  var s=convTarget?songByIdC(convTarget):null;
+  if(!s){ convDone(); return; }
+  $('convTitle').textContent=s.t;
+  var left=SONGS.filter(function(x){ return !(texts[x.id]&&texts[x.id].trim()); }).length;
+  $('convLeft').textContent='осталось без текста: '+left;
+  /* подсветить карточку в списке */
+  var card=$('card_'+s.id);
+  if(card){ card.scrollIntoView({behavior:'smooth',block:'center'}); card.classList.add('jump');
+    setTimeout(function(){ card.classList.remove('jump'); },1400); }
+}
+function convStartFlow(){
+  convTarget=nextEmptyId(null);
+  if(!convTarget){ toast('Все тексты уже заполнены!'); return; }
+  $('convStart').style.display='none';
+  $('convBar').classList.add('show');
+  convUpdate();
+}
+function convDone(){
+  $('convBar').classList.remove('show');
+  $('convStart').style.display='';
+  toast('Конвейер: пустых песен больше нет 🎉');
+}
+function convStop(){
+  $('convBar').classList.remove('show');
+  $('convStart').style.display='';
+}
+$('convStart').addEventListener('click',convStartFlow);
+$('convStop').addEventListener('click',convStop);
+$('convFind').addEventListener('click',function(){
+  var s=convTarget?songByIdC(convTarget):null; if(!s) return;
+  window.open(findUrl(s),'_blank','noopener');
+});
+$('convSkip').addEventListener('click',function(){
+  var nid=nextEmptyId(convTarget);
+  if(!nid || nid===convTarget){ convDone(); return; }
+  convTarget=nid; convUpdate();
+});
+$('convPaste').addEventListener('click',function(){
+  var s=convTarget?songByIdC(convTarget):null; if(!s) return;
+  if(!(navigator.clipboard&&navigator.clipboard.readText)){
+    var card=$('card_'+s.id); if(card){ card.classList.add('open'); }
+    toast('Браузер не даёт читать буфер — вставь в поле песни вручную (Ctrl+V)');
+    return;
+  }
+  navigator.clipboard.readText().then(function(t){
+    t=normalize(t);
+    if(!t){ toast('В буфере пусто — сначала скопируй текст на сайте'); return; }
+    /* защита от повторной вставки того же текста в другую песню */
+    if(window.__lastConvText===t){ toast('Это тот же текст, что и в прошлый раз — скопируй новый'); return; }
+    window.__lastConvText=t;
+    setText(s.id,t);
+    var card=$('card_'+s.id); if(card) card.classList.remove('open');
+    var nid=nextEmptyId(convTarget);
+    if(!nid){ convDone(); return; }
+    convTarget=nid; convUpdate();
+    toast('«'+s.t+'» готово ✓ Следующая: жми «Найти текст»');
+  }).catch(function(){
+    var card=$('card_'+s.id); if(card){ card.classList.add('open'); var ta=$('ta_'+s.id); if(ta) ta.focus(); }
+    toast('Разреши доступ к буферу или вставь в поле вручную');
+  });
 });
 
 /* «к следующей пустой»: мотаем к первой незаполненной песне и раскрываем её */
@@ -479,6 +594,24 @@ $('themeBtn').addEventListener('click',function(){
 if(!storageOK) toast('Внимание: браузер не сохраняет черновик — не закрывай вкладку, пока не скачаешь файл');
 
 render();
+
+/* подтянуть уже собранные тексты с сайта (songs.json) — локальные черновики не трогаем */
+if(location.protocol!=='file:'){
+  fetch('songs.json?ts='+Date.now(),{cache:'no-store'}).then(function(r){
+    if(!r.ok) throw 0; return r.json();
+  }).then(function(d){
+    if(!d || !Array.isArray(d.songs)) return;
+    var n=0;
+    d.songs.forEach(function(rs){
+      if(!rs||!rs.id||!rs.text) return;
+      if(String(rs.text).indexOf('не добавлен')!==-1) return;   /* заглушки не считаем */
+      if(texts[rs.id]&&texts[rs.id].trim()) return;             /* свой черновик важнее */
+      texts[rs.id]=String(rs.text); n++;
+      var ta=$('ta_'+rs.id); if(ta) ta.value=texts[rs.id];
+    });
+    if(n){ save(); refresh(); toast('Подтянул с сайта уже готовые: '+ruSongs(n)+' ✓'); }
+  }).catch(function(){});
+}
 </script>
 </body>
 </html>
