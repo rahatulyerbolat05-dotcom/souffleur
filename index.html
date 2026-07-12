@@ -382,6 +382,20 @@ html[data-theme="light"] .lyrics .tagline{background:rgba(47,111,208,.1);}
 .pubsheet .ghost{background:var(--card);color:var(--ink);border:1px solid var(--line);}
 .pubsheet .danger-ghost{width:100%;margin-top:10px;background:transparent;border:0;color:var(--danger);
   font-size:13px;font-weight:700;padding:10px;}
+.publist{max-height:34vh;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;
+  gap:7px;margin:0 0 12px;}
+.pubrow{display:flex;align-items:center;gap:10px;background:var(--card);border:1.5px solid var(--line);
+  border-radius:12px;padding:10px 12px;min-height:50px;}
+.pubrow.sel{border-color:var(--accent);background:var(--accent-sl);}
+.pubrow .cb{width:24px;height:24px;flex:0 0 auto;border-radius:7px;border:2px solid var(--line);
+  display:flex;align-items:center;justify-content:center;color:transparent;background:var(--bg-2);}
+.pubrow.sel .cb{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
+.pubrow .cb .isv{width:13px;height:13px;stroke-width:3;}
+.pubrow .t{flex:1;min-width:0;font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pubrow .st{flex:0 0 auto;font-size:10.5px;font-weight:800;padding:3px 8px;border-radius:99px;
+  background:var(--accent-sl);color:var(--accent);text-transform:uppercase;letter-spacing:.03em;}
+.pubrow .st.new{background:rgba(126,224,163,.15);color:var(--play);}
+.pubempty{text-align:center;color:var(--ink-soft);font-size:13.5px;padding:14px 6px 16px;}
 </style>
 </head>
 <body>
@@ -473,7 +487,8 @@ html[data-theme="light"] .lyrics .tagline{background:rgba(47,111,208,.1);}
   <div class="dim" id="pubDim"></div>
   <div class="box">
     <h3>Отправить на сайт</h3>
-    <p class="hint" id="pubMsg">Каталог улетит в твой репозиторий GitHub.</p>
+    <p class="hint" id="pubMsg">Что нового на этом устройстве по сравнению с сайтом:</p>
+    <div class="publist" id="pubList"></div>
     <label for="pubTok">Ключ доступа GitHub</label>
     <input type="password" id="pubTok" placeholder="github_pat_…" autocomplete="off">
     <div class="hint" style="margin-top:8px">Ключ делается один раз на github.com (инструкция — у Клода). Хранится только на этом устройстве, как пароль.</div>
@@ -515,6 +530,8 @@ html[data-theme="light"] .lyrics .tagline{background:rgba(47,111,208,.1);}
     <div class="field">
       <label for="f_text">Текст</label>
       <div class="fmtbar" id="fmtBar">
+        <button type="button" class="fb util" data-act="selpar">▣ Блок</button>
+        <button type="button" class="fb util" data-act="selline">+строка</button>
         <button type="button" class="fb" data-fmt="Куплет">Куплет</button>
         <button type="button" class="fb" data-fmt="Припев">Припев</button>
         <button type="button" class="fb" data-fmt="Бридж">Бридж</button>
@@ -524,9 +541,10 @@ html[data-theme="light"] .lyrics .tagline{background:rgba(47,111,208,.1);}
         <button type="button" class="fb util" data-act="blank">⏎ Отступ</button>
         <button type="button" class="fb util" data-act="top">⇑ Наверх</button>
         <button type="button" class="fb util" data-act="bottom">⇓ Вниз</button>
-        <button type="button" class="fb util" data-act="undo">↶ Отмена</button>
+        <button type="button" class="fb util" data-act="undo">↶ Назад</button>
+        <button type="button" class="fb util" data-act="redo">↷ Вперёд</button>
       </div>
-      <div class="fmthint">Выдели строки (или поставь курсор на строку) и жми метку — отступы сделаю сам. Куплеты нумеруются автоматически.</div>
+      <div class="fmthint">Ткни в текст → «▣ Блок» выделит абзац (или «+строка» добавляет по строке) → жми метку. Отступы сделаю сам, куплеты нумеруются автоматически.</div>
       <textarea id="f_text" placeholder="Вставь сюда текст песни…&#10;&#10;Метки в квадратных скобках подсветятся:&#10;[Куплет 1]&#10;[Припев]" autocapitalize="sentences"></textarea>
       <div class="formhint">Пустая строка = отступ между блоками. Метки вроде [Припев], [Куплет 2], [Бридж] будут выделены цветом на сцене.</div>
     </div>
@@ -826,11 +844,29 @@ function openSongEditor(id){
   $('f_title').value=s?s.title:'';
   $('f_text').value=s?s.text:'';
   $('delSongRow').style.display=s?'':'none';
-  fmtUndo=null;
+  edInit($('f_text').value);
   show('Song');
 }
-/* ---- панель форматирования: метки, отступы, отмена ---- */
-var fmtUndo=null;
+/* ---- панель форматирования: метки, отступы, история Назад/Вперёд ---- */
+var edHist=[], edPtr=-1, edTm=null;
+function edInit(v){ edHist=[v]; edPtr=0; }
+function edSnap(){
+  var v=$('f_text').value;
+  if(edPtr>=0 && edHist[edPtr]===v) return;
+  edHist=edHist.slice(0,edPtr+1);
+  edHist.push(v);
+  if(edHist.length>60) edHist.shift();
+  edPtr=edHist.length-1;
+}
+function edUndo(){
+  edSnap();                       /* зафиксировать несохранённый ввод */
+  if(edPtr<=0){ toast('Дальше некуда — это начало'); return; }
+  edPtr--; $('f_text').value=edHist[edPtr]; $('f_text').focus();
+}
+function edRedo(){
+  if(edPtr>=edHist.length-1){ toast('Это самая свежая версия'); return; }
+  edPtr++; $('f_text').value=edHist[edPtr]; $('f_text').focus();
+}
 function lineBounds(v,st,en){
   var ls=v.lastIndexOf('\n',st-1)+1;
   var le=v.indexOf('\n',en); if(le===-1) le=v.length;
@@ -838,8 +874,8 @@ function lineBounds(v,st,en){
 }
 function fmtLabel(label){
   var ta=$('f_text'); var v=ta.value;
+  edSnap();
   var st=ta.selectionStart||0, en=ta.selectionEnd!=null?ta.selectionEnd:st;
-  fmtUndo=v;
   var scroll=ta.scrollTop;
   var hasSel = en>st;
   var b=lineBounds(v,st,en), ls=b[0], le=b[1];
@@ -850,11 +886,11 @@ function fmtLabel(label){
   }
   var tag='['+name+']';
   var before=v.slice(0,ls), block=v.slice(ls,le), after=v.slice(le);
-  /* пустая строка перед меткой, метка, блок; после выделенного блока — отступ */
   var pre = before ? (/\n\s*\n$/.test(before) ? '' : (before.slice(-1)==='\n' ? '\n' : '\n\n')) : '';
   var post = hasSel ? (after && !/^\n\s*\n/.test(after) ? (after.charAt(0)==='\n' ? '\n' : '\n\n') : '') : '';
   var nv=(before+pre+tag+'\n'+block+post+after).replace(/\n{3,}/g,'\n\n');
   ta.value=nv;
+  edSnap();
   var pos=(before+pre+tag+'\n'+block).length;
   ta.focus();
   try{ ta.setSelectionRange(pos,pos); }catch(e){}
@@ -862,21 +898,47 @@ function fmtLabel(label){
 }
 function fmtBlank(){
   var ta=$('f_text'); var v=ta.value;
-  fmtUndo=v;
+  edSnap();
   var scroll=ta.scrollTop;
   var st=ta.selectionStart||0;
   var ls=v.lastIndexOf('\n',st-1)+1;
   var nv=(v.slice(0,ls)+'\n'+v.slice(ls)).replace(/\n{3,}/g,'\n\n');
   ta.value=nv;
+  edSnap();
   ta.focus();
   try{ ta.setSelectionRange(st+1,st+1); }catch(e){}
   ta.scrollTop=scroll;
 }
-function fmtUndoNow(){
-  if(fmtUndo===null){ toast('Отменять нечего'); return; }
-  var ta=$('f_text'); var cur=ta.value;
-  ta.value=fmtUndo; fmtUndo=cur;   /* повторный тап вернёт обратно */
+/* «Выделить блок»: абзац вокруг курсора — от пустой строки до пустой строки */
+function selParagraph(){
+  var ta=$('f_text'); var v=ta.value;
+  var st=ta.selectionStart||0;
+  var a=st, b=st;
+  /* вверх до пустой строки */
+  var up=v.lastIndexOf('\n\n', Math.max(0,st-1));
+  a = up===-1 ? 0 : up+2;
+  /* вниз до пустой строки */
+  var dn=v.indexOf('\n\n', st);
+  b = dn===-1 ? v.length : dn;
   ta.focus();
+  try{ ta.setSelectionRange(a,b); }catch(e){}
+}
+/* «+строка»: нет выделения — выделить текущую строку; есть — дорастить на строку вниз */
+function selPlusLine(){
+  var ta=$('f_text'); var v=ta.value;
+  var st=ta.selectionStart||0, en=ta.selectionEnd!=null?ta.selectionEnd:st;
+  var a,b;
+  if(en>st){
+    a=st;
+    var nb=v.indexOf('\n', en+ (v.charAt(en)==='\n'?1:0));
+    b = nb===-1 ? v.length : nb;
+  } else {
+    a=v.lastIndexOf('\n',st-1)+1;
+    var le=v.indexOf('\n',st);
+    b = le===-1 ? v.length : le;
+  }
+  ta.focus();
+  try{ ta.setSelectionRange(a,b); }catch(e){}
 }
 /* pointerdown + preventDefault: кнопка не крадёт фокус и выделение из textarea */
 function fmtHandler(e){
@@ -888,16 +950,23 @@ function fmtHandler(e){
   else if(act==='top'||act==='bottom'){
     var ta=$('f_text'); ta.focus();
     var pos=act==='top'?0:ta.value.length;
-    try{ ta.setSelectionRange(pos,pos); }catch(e){}
+    try{ ta.setSelectionRange(pos,pos); }catch(e2){}
     ta.scrollTop=act==='top'?0:ta.scrollHeight;
   }
-  else fmtUndoNow();
+  else if(act==='selpar') selParagraph();
+  else if(act==='selline') selPlusLine();
+  else if(act==='undo') edUndo();
+  else if(act==='redo') edRedo();
 }
 if(window.PointerEvent) $('fmtBar').addEventListener('pointerdown',fmtHandler);
 else{
   $('fmtBar').addEventListener('mousedown',fmtHandler);
   $('fmtBar').addEventListener('touchstart',fmtHandler,{passive:false});
 }
+/* снимки истории во время обычного набора (пауза 600 мс) */
+$('f_text').addEventListener('input',function(){
+  clearTimeout(edTm); edTm=setTimeout(edSnap,600);
+});
 
 $('addSongBtn').addEventListener('click',function(){ openSongEditor(null); });
 $('saveSongBtn').addEventListener('click',function(){
@@ -1329,15 +1398,74 @@ function syncFromSite(manual){
 }
 $('syncBtn').addEventListener('click',function(){ syncFromSite(true); });
 
-/* ===================================================================== ПУБЛИКАЦИЯ НА САЙТ (GitHub) */
+/* ===================================================================== ПУБЛИКАЦИЯ НА САЙТ (GitHub) — точечная */
 var K_PUB='sf_pub_v1';
 var PUB={owner:'rahatulyerbolat05-dotcom',repo:'souffleur',path:'songs.json',branch:'main'};
 function b64utf8(s){ return btoa(unescape(encodeURIComponent(s))); }
+
+var pubRemote=null;      /* каталог с сайта на момент открытия шторки */
+var pubDiff=[];          /* [{id,title,status:'new'|'changed',checked}] */
+
+function pubBuildDiff(){
+  var rby={}; (pubRemote&&pubRemote.songs||[]).forEach(function(r){ rby[r.id]=r; });
+  pubDiff=[];
+  songs.forEach(function(l){
+    var r=rby[l.id];
+    if(!r){ pubDiff.push({id:l.id,title:l.title,status:'new',checked:true}); }
+    else if(r.title!==l.title || String(r.text)!==l.text){
+      pubDiff.push({id:l.id,title:l.title,status:'changed',checked:true});
+    }
+  });
+}
+function pubRenderList(){
+  var host=$('pubList'); host.innerHTML='';
+  if(!pubDiff.length){
+    host.innerHTML='<div class="pubempty">Всё уже на сайте — отличий нет ✓</div>';
+    $('pubGo').disabled=true; $('pubGo').textContent='Отправлять нечего';
+    return;
+  }
+  pubDiff.forEach(function(d,i){
+    var el=document.createElement('div');
+    el.className='pubrow'+(d.checked?' sel':''); el.setAttribute('data-pub-i',i);
+    el.innerHTML='<span class="cb"><svg class="isv"><use href="#i-check"/></svg></span>'+
+      '<span class="t">'+esc(d.title)+'</span>'+
+      '<span class="st'+(d.status==='new'?' new':'')+'">'+(d.status==='new'?'новая':'изменена')+'</span>';
+    host.appendChild(el);
+  });
+  pubSyncGo();
+}
+function pubSyncGo(){
+  var n=pubDiff.filter(function(d){return d.checked;}).length;
+  $('pubGo').disabled=!n;
+  $('pubGo').textContent=n?('Отправить выбранные ('+n+')'):'Выбери песни';
+}
+$('pubList').addEventListener('click',function(e){
+  var el=e.target.closest('[data-pub-i]'); if(!el) return;
+  var d=pubDiff[+el.getAttribute('data-pub-i')];
+  d.checked=!d.checked;
+  el.classList.toggle('sel',d.checked);
+  pubSyncGo();
+});
+
 $('pubBtn').addEventListener('click',function(){
   $('pubTok').value=sGet(K_PUB)||'';
   $('pubForget').style.display=sGet(K_PUB)?'':'none';
-  $('pubMsg').textContent='Каталог ('+ruSongs(songs.length)+') улетит в твой репозиторий GitHub, и другие устройства подтянут его при запуске.';
   $('pubSheet').classList.add('show');
+  $('pubList').innerHTML='<div class="pubempty">Сверяю с сайтом…</div>';
+  $('pubGo').disabled=true; $('pubGo').textContent='Отправить выбранные';
+  if(location.protocol==='file:'){
+    $('pubList').innerHTML='<div class="pubempty">Работает только на сайте (открой по ссылке)</div>';
+    return;
+  }
+  fetch('songs.json?ts='+Date.now(),{cache:'no-store'})
+    .then(function(r){ if(r.status===404) return {songs:[],sets:[]}; if(!r.ok) throw 0; return r.json(); })
+    .then(function(d){
+      pubRemote=(d && Array.isArray(d.songs))?d:{songs:[],sets:[]};
+      pubBuildDiff(); pubRenderList();
+    })
+    .catch(function(){
+      $('pubList').innerHTML='<div class="pubempty">Не удалось свериться с сайтом — проверь интернет</div>';
+    });
 });
 function closePubSheet(){ $('pubSheet').classList.remove('show'); }
 $('pubCancel').addEventListener('click',closePubSheet);
@@ -1349,32 +1477,49 @@ $('pubForget').addEventListener('click',function(){
 $('pubGo').addEventListener('click',function(){
   var tok=$('pubTok').value.trim();
   if(!tok){ toast('Сначала вставь ключ доступа'); $('pubTok').focus(); return; }
+  var picked=pubDiff.filter(function(d){return d.checked;});
+  if(!picked.length){ toast('Выбери хотя бы одну песню'); return; }
   sSet(K_PUB,tok); $('pubForget').style.display='';
   var btn=$('pubGo'); btn.disabled=true; btn.textContent='Отправляю…';
   function done(msg,ok){
-    btn.disabled=false; btn.textContent='Отправить каталог';
+    btn.disabled=false; pubSyncGo();
     toast(msg); if(ok) closePubSheet();
   }
+  /* слить выбранные локальные песни в каталог САЙТА — чужое не трогаем */
+  var merged=(pubRemote.songs||[]).map(function(r){ return {id:r.id,title:r.title,text:String(r.text),spd:r.spd}; });
+  var mby={}; merged.forEach(function(r){ mby[r.id]=r; });
+  var pushedIds=[];
+  picked.forEach(function(d){
+    var l=songById(d.id); if(!l) return;
+    pushedIds.push(l.id);
+    var obj=mby[l.id];
+    if(obj){ obj.title=l.title; obj.text=l.text; if(typeof l.spd==='number') obj.spd=l.spd; }
+    else { var no={id:l.id,title:l.title,text:l.text}; if(typeof l.spd==='number') no.spd=l.spd; merged.push(no); mby[l.id]=no; }
+  });
+  merged.forEach(function(r){ if(typeof r.spd==='undefined') delete r.spd; });
   var exported=new Date().toISOString();
-  var body=JSON.stringify({app:'souffleur',version:1,exported:exported,songs:songs,sets:sets},null,1);
+  var body=JSON.stringify({app:'souffleur',version:1,exported:exported,songs:merged,sets:(pubRemote.sets||[])},null,1);
   var api='https://api.github.com/repos/'+PUB.owner+'/'+PUB.repo+'/contents/'+PUB.path;
   var H={'Authorization':'Bearer '+tok,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'};
   fetch(api+'?ref='+PUB.branch,{headers:H,cache:'no-store'}).then(function(r){
     if(r.status===401||r.status===403) throw 'auth';
-    if(r.status===404) return null;                 /* файла ещё нет — создадим */
+    if(r.status===404) return null;
     if(!r.ok) throw 'err';
     return r.json();
   }).then(function(cur){
-    var put={message:'Суфлёр: каталог с устройства ('+ruSongs(songs.length)+')',content:b64utf8(body),branch:PUB.branch};
+    var put={message:'Суфлёр: '+ruSongs(picked.length)+' с устройства',content:b64utf8(body),branch:PUB.branch};
     if(cur && cur.sha) put.sha=cur.sha;
     return fetch(api,{method:'PUT',headers:H,body:JSON.stringify(put)});
   }).then(function(r){
     if(r.status===401||r.status===403||r.status===404) throw 'auth';
     if(r.status===409) throw 'again';
     if(!r.ok) throw 'err';
+    /* отправленные песни теперь совпадают с сайтом — снимаем пометку «правлена вручную» */
+    pushedIds.forEach(function(id){ var l=songById(id); if(l) delete l.m; });
+    saveSongs();
     sync.catalogTs=exported; saveSync();
     $('syncNote').textContent=noteTs();
-    done('Отправлено на сайт ✓ '+ruSongs(songs.length),true);
+    done('Отправлено на сайт: '+ruSongs(picked.length)+' ✓',true);
   }).catch(function(e){
     done(e==='auth'?'Ключ не подходит или нет доступа к репозиторию':(e==='again'?'Сайт занят — попробуй ещё раз через минуту':'Не получилось — проверь интернет'),false);
   });
