@@ -59,8 +59,12 @@ a{color:var(--link);}
 .pbar{height:10px;background:var(--card-2);border-radius:99px;overflow:hidden;border:1px solid var(--line);}
 .pfill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),#ff8f3d);border-radius:99px;
   transition:width .3s ease;}
-.ptext{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink-soft);margin-top:6px;font-weight:700;}
+.ptext{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--ink-soft);margin-top:6px;font-weight:700;gap:8px;}
 .ptext .done{color:var(--accent);}
+.nextempty{border:1px solid var(--line);background:var(--card);color:var(--accent);
+  font-size:12.5px;font-weight:800;padding:7px 12px;border-radius:99px;flex:0 0 auto;}
+.nextempty:active{transform:scale(.96);background:var(--card-2);}
+.song.jump{border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,180,84,.25);}
 
 /* якоря групп */
 .gnav{display:flex;gap:8px;margin:10px 0 4px;flex-wrap:wrap;}
@@ -164,7 +168,7 @@ html[data-theme="light"] .song .find{color:#8a5406;}
 
   <div class="prog">
     <div class="pbar"><div class="pfill" id="pFill"></div></div>
-    <div class="ptext"><span>Заполнено: <span class="done" id="pDone">0</span> из <span id="pTotal">0</span></span><span id="pPct">0%</span></div>
+    <div class="ptext"><span>Заполнено: <span class="done" id="pDone">0</span> из <span id="pTotal">0</span></span><span id="pPct">0%</span><button type="button" class="nextempty" id="nextEmpty">→ к пустой</button></div>
   </div>
 
   <nav class="gnav" id="gnav"></nav>
@@ -435,6 +439,26 @@ df.addEventListener('change',function(){
     }catch(e){ toast('Это не похоже на черновик сборщика'); }
   };
   r.readAsText(f);
+});
+
+/* «к следующей пустой»: мотаем к первой незаполненной песне и раскрываем её */
+var lastJumpId=null;
+$('nextEmpty').addEventListener('click',function(){
+  var order=SONGS.map(function(s){return s.id;});
+  var start=0;
+  if(lastJumpId){ var li=order.indexOf(lastJumpId); if(li>=0) start=li+1; }
+  var target=null;
+  for(var k=0;k<order.length;k++){
+    var id=order[(start+k)%order.length];
+    if(!(texts[id]&&texts[id].trim())){ target=id; break; }
+  }
+  if(!target){ toast('Все тексты заполнены — можно скачивать!'); return; }
+  lastJumpId=target;
+  var card=$('card_'+target);
+  card.classList.add('open');
+  card.scrollIntoView({behavior:'smooth',block:'center'});
+  card.classList.add('jump');
+  setTimeout(function(){ card.classList.remove('jump'); },1600);
 });
 
 /* инструкция сворачивается */
