@@ -229,7 +229,10 @@ textarea{resize:vertical;min-height:46vh;line-height:1.6;}
 .catbar .doneb{background:var(--card);border:1.5px solid var(--line);color:var(--ink-soft);flex:0.6;}
 
 /* панель форматирования в редакторе песни */
-.fmtbar{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 9px;padding:2px 0 2px;}
+.fmtbar{display:flex;flex-direction:column;gap:8px;margin:0 0 9px;padding:2px 0 2px;}
+.fmtrow{display:flex;gap:7px;}
+.fmtrow.tags{flex-wrap:wrap;}
+.fmtrow .fb.big{flex:1 1 0;min-width:0;height:46px;font-size:14px;justify-content:center;}
 .fmtbar .fb{flex:0 0 auto;height:40px;padding:0 13px;border:1.5px solid var(--line);background:var(--card);
   color:var(--ink);border-radius:20px;font-weight:700;font-size:13px;display:flex;align-items:center;gap:5px;}
 .fmtbar .fb:active{transform:scale(.96);}
@@ -582,21 +585,26 @@ html[data-theme="light"] .lyrics .tagline{background:rgba(47,111,208,.1);}
     <div class="field">
       <label for="f_text">Текст</label>
       <div class="fmtbar" id="fmtBar">
-        <button type="button" class="fb util" data-act="selpar">▣ Блок</button>
-        <button type="button" class="fb util" data-act="selline">+строка</button>
-        <button type="button" class="fb" data-fmt="Куплет">Куплет</button>
-        <button type="button" class="fb" data-fmt="Припев">Припев</button>
-        <button type="button" class="fb" data-fmt="Бридж">Бридж</button>
-        <button type="button" class="fb" data-fmt="Интро">Интро</button>
-        <button type="button" class="fb" data-fmt="Предприпев">Предприпев</button>
-        <button type="button" class="fb" data-fmt="Финал">Финал</button>
-        <button type="button" class="fb util" data-act="blank">⏎ Отступ</button>
-        <button type="button" class="fb util" data-act="top">⇑ Наверх</button>
-        <button type="button" class="fb util" data-act="bottom">⇓ Вниз</button>
-        <button type="button" class="fb util" data-act="undo">↶ Назад</button>
-        <button type="button" class="fb util" data-act="redo">↷ Вперёд</button>
+        <div class="fmtrow ctl">
+          <button type="button" class="fb big" data-act="selpar">▣ Блок</button>
+          <button type="button" class="fb big" data-act="selline">+ строка</button>
+          <button type="button" class="fb big" data-act="sellineminus">− строка</button>
+        </div>
+        <div class="fmtrow tags">
+          <button type="button" class="fb" data-fmt="Куплет">Куплет</button>
+          <button type="button" class="fb" data-fmt="Припев">Припев</button>
+          <button type="button" class="fb" data-fmt="Бридж">Бридж</button>
+          <button type="button" class="fb" data-fmt="Интро">Интро</button>
+          <button type="button" class="fb" data-fmt="Предприпев">Предприпев</button>
+          <button type="button" class="fb" data-fmt="Финал">Финал</button>
+        </div>
+        <div class="fmtrow ctl">
+          <button type="button" class="fb big util" data-act="blank">⏎ Отступ</button>
+          <button type="button" class="fb big util" data-act="undo">↶ Назад</button>
+          <button type="button" class="fb big util" data-act="redo">↷ Вперёд</button>
+        </div>
       </div>
-      <div class="fmthint">Ткни в текст → «▣ Блок» выделит абзац (или «+строка» добавляет по строке) → жми метку. Отступы сделаю сам, куплеты нумеруются автоматически.</div>
+      <div class="fmthint">Ткни в текст → «▣ Блок» выделит абзац (или собирай выделение кнопками ±строка) → жми метку. Отступы сделаю сам, куплеты нумеруются сами, старая метка заменяется новой.</div>
       <textarea id="f_text" placeholder="Вставь сюда текст песни…&#10;&#10;Метки в квадратных скобках подсветятся:&#10;[Куплет 1]&#10;[Припев]" autocapitalize="sentences"></textarea>
       <div class="formhint">Пустая строка = отступ между блоками. Метки вроде [Припев], [Куплет 2], [Бридж] будут выделены цветом на сцене.</div>
     </div>
@@ -1013,26 +1021,39 @@ function fmtLabel(label){
   var scroll=ta.scrollTop;
   var hasSel = en>st;
   var b=lineBounds(v,st,en), ls=b[0], le=b[1];
-  var name=label;
-  if(label==='Куплет'){
-    var mx=0; v.replace(/\[Куплет\s*(\d+)\]/g,function(m,n){ mx=Math.max(mx,+n); return m; });
-    name='Куплет '+(mx+1);
-  }
-  var tag='['+name+']';
   var before=v.slice(0,ls), block=v.slice(ls,le), after=v.slice(le);
-  /* курсор стоит прямо на строке-метке — просто заменить её */
+
+  /* 1) курсор стоит прямо на строке-метке — просто заменить её */
   if(!hasSel && /^\[[^\]]+\]\s*$/.test(block)){
-    var nv0=(before+tag+after).replace(/\n{3,}/g,'\n\n');
+    var tag0=label;
+    if(label==='Куплет'){
+      var mx0=0; (before+after).replace(/\[Куплет\s*(\d+)\]/g,function(m,n){ mx0=Math.max(mx0,+n); return m; });
+      tag0='Куплет '+(mx0+1);
+    }
+    var nv0=(before+'['+tag0+']'+after).replace(/\n{3,}/g,'\n\n');
     ta.value=nv0; edSnap();
-    var pos0=(before+tag).length;
+    var pos0=(before+'['+tag0+']').length;
     ta.focus(); try{ ta.setSelectionRange(pos0,pos0); }catch(e){}
     ta.scrollTop=scroll; return;
   }
-  /* если строкой выше уже есть метка — она заменяется, а не копится */
+
+  /* 2) старая метка в начале выделения — выкидываем (заменится новой) */
+  var mLead=block.match(/^\[[^\]]+\]\n?/);
+  if(mLead) block=block.slice(mLead[0].length);
+
+  /* 3) старая метка строкой выше — тоже заменяется, а не копится */
   var mPrev=before.match(/(^|\n)\[[^\]]+\]\n$/);
-  if(mPrev){
-    before=before.slice(0, before.length-mPrev[0].length+(mPrev[1]?1:0));
+  if(mPrev) before=before.slice(0, before.length-mPrev[0].length+(mPrev[1]?1:0));
+
+  /* 4) номер куплета — по тексту БЕЗ заменяемых меток */
+  var name=label;
+  if(label==='Куплет'){
+    var mx=0; (before+block+after).replace(/\[Куплет\s*(\d+)\]/g,function(m,n){ mx=Math.max(mx,+n); return m; });
+    name='Куплет '+(mx+1);
   }
+  var tag='['+name+']';
+
+  /* 5) собрать с правильными отступами */
   var pre = before ? (/\n\s*\n$/.test(before) ? '' : (before.slice(-1)==='\n' ? '\n' : '\n\n')) : '';
   var post = hasSel ? (after && !/^\n\s*\n/.test(after) ? (after.charAt(0)==='\n' ? '\n' : '\n\n') : '') : '';
   var nv=(before+pre+tag+'\n'+block+post+after).replace(/\n{3,}/g,'\n\n');
@@ -1087,6 +1108,16 @@ function selPlusLine(){
   ta.focus();
   try{ ta.setSelectionRange(a,b); }catch(e){}
 }
+/* «−строка»: убрать нижнюю строку из выделения */
+function selMinusLine(){
+  var ta=$('f_text'); var v=ta.value;
+  var st=ta.selectionStart||0, en=ta.selectionEnd!=null?ta.selectionEnd:st;
+  if(en<=st) return;
+  var lastNl=v.lastIndexOf('\n', en-1);
+  if(lastNl<=st){ ta.focus(); try{ ta.setSelectionRange(st,st); }catch(e){} return; }
+  ta.focus();
+  try{ ta.setSelectionRange(st,lastNl); }catch(e){}
+}
 /* pointerdown + preventDefault: кнопка не крадёт фокус и выделение из textarea */
 function fmtHandler(e){
   var btn=e.target.closest('[data-fmt],[data-act]'); if(!btn) return;
@@ -1094,14 +1125,9 @@ function fmtHandler(e){
   var act=btn.getAttribute('data-act');
   if(btn.hasAttribute('data-fmt')) fmtLabel(btn.getAttribute('data-fmt'));
   else if(act==='blank') fmtBlank();
-  else if(act==='top'||act==='bottom'){
-    var ta=$('f_text'); ta.focus();
-    var pos=act==='top'?0:ta.value.length;
-    try{ ta.setSelectionRange(pos,pos); }catch(e2){}
-    ta.scrollTop=act==='top'?0:ta.scrollHeight;
-  }
   else if(act==='selpar') selParagraph();
   else if(act==='selline') selPlusLine();
+  else if(act==='sellineminus') selMinusLine();
   else if(act==='undo') edUndo();
   else if(act==='redo') edRedo();
 }
