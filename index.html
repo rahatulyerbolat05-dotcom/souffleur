@@ -37,12 +37,18 @@
   --t-fast:.15s; --t-med:.26s;
   --ease:cubic-bezier(.22,1,.36,1);
   --ff:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  --tex:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2226%22%20height%3D%2226%22%3E%3Cg%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.045%22%20stroke-width%3D%221%22%3E%3Cpath%20d%3D%22M-2%206%20L6%20-2%20M2%2028%20L28%202%20M20%2032%20L32%2020%22%2F%3E%3Cpath%20d%3D%22M-2%2020%20L20%20-2%20M6%2032%20L32%206%22%20stroke-opacity%3D%220.028%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  --tex-size:26px;
+  --glass:rgba(16,19,24,.62);
+  --glass-line:rgba(255,255,255,.09);
   --sat:env(safe-area-inset-top,0px);
   --sab:env(safe-area-inset-bottom,0px);
   --sal:env(safe-area-inset-left,0px);
   --sar:env(safe-area-inset-right,0px);
 }
 html[data-theme="light"]{
+  --tex:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cg%20fill%3D%22%23221f18%22%20fill-opacity%3D%220.035%22%3E%3Ccircle%20cx%3D%223%22%20cy%3D%225%22%20r%3D%220.8%22%2F%3E%3Ccircle%20cx%3D%2214%22%20cy%3D%222%22%20r%3D%220.6%22%2F%3E%3Ccircle%20cx%3D%2220%22%20cy%3D%229%22%20r%3D%220.7%22%2F%3E%3Ccircle%20cx%3D%228%22%20cy%3D%2213%22%20r%3D%220.6%22%2F%3E%3Ccircle%20cx%3D%2217%22%20cy%3D%2217%22%20r%3D%220.8%22%2F%3E%3Ccircle%20cx%3D%224%22%20cy%3D%2220%22%20r%3D%220.6%22%2F%3E%3Ccircle%20cx%3D%2222%22%20cy%3D%2222%22%20r%3D%220.5%22%2F%3E%3Ccircle%20cx%3D%2211%22%20cy%3D%2222%22%20r%3D%220.7%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"); --tex-size:24px;
+  --glass:rgba(246,243,236,.68); --glass-line:rgba(34,32,27,.09);
   --bg:#f6f3ec; --bg-2:#efeadf; --card:#ffffff; --card-2:#f4efe6;
   --line:#ddd6c8; --ink:#22201b; --ink-soft:#6f6a5e; --ink-faint:#a49d8e;
   --accent:#c97a10; --accent-ink:#fff; --accent-sl:#f7e5c8;
@@ -51,6 +57,7 @@ html[data-theme="light"]{
 }
 /* ===== ТЕМЫ ===== */
 html[data-theme="navy"]{
+  --glass:rgba(13,20,36,.62);
   --bg:#0b1220; --bg-2:#101a2e; --card:#16233c; --card-2:#1d2c49;
   --line:#2b3d5f; --ink:#eef3fb; --ink-soft:#9fb0c9; --ink-faint:#64748f;
   --accent:#6cc4ff; --accent-ink:#04121f; --accent-sl:#14314a;
@@ -58,6 +65,7 @@ html[data-theme="navy"]{
   --accent-2:#4a8fe8; --glow:108,196,255;
 }
 html[data-theme="emerald"]{
+  --glass:rgba(11,22,17,.62);
   --bg:#0a1410; --bg-2:#0f1c15; --card:#12211a; --card-2:#182b22;
   --line:#27412f; --ink:#edf7ef; --ink-soft:#a3bfae; --ink-faint:#5f7a6a;
   --accent:#4ade80; --accent-ink:#052012; --accent-sl:#143425;
@@ -65,6 +73,7 @@ html[data-theme="emerald"]{
   --accent-2:#22b862; --glow:74,222,128;
 }
 html[data-theme="velvet"]{
+  --glass:rgba(27,15,20,.62);
   --bg:#170d12; --bg-2:#1e1118; --card:#241419; --card-2:#2e1a21;
   --line:#4a2a35; --ink:#f7eef0; --ink-soft:#c5a3ad; --ink-faint:#7d5f68;
   --accent:#ff7d9d; --accent-ink:#26060f; --accent-sl:#3d1d29;
@@ -72,6 +81,7 @@ html[data-theme="velvet"]{
   --accent-2:#e85a86; --glow:255,125,157;
 }
 html[data-theme="lime"]{
+  --glass:rgba(14,14,14,.64);
   --bg:#0d0d0d; --bg-2:#141414; --card:#171717; --card-2:#202020;
   --line:#303030; --ink:#f2f2f0; --ink-soft:#a3a39c; --ink-faint:#666660;
   --accent:#c8f04a; --accent-ink:#141a02; --accent-sl:#2a3312;
@@ -79,6 +89,8 @@ html[data-theme="lime"]{
   --accent-2:#93d637; --glow:200,240,74;
 }
 html[data-theme="sepia"]{
+  --tex:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2290%22%20height%3D%2260%22%3E%3Cg%20stroke%3D%22%236b4e1e%22%20stroke-opacity%3D%220.05%22%20stroke-width%3D%221%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M0%208%20Q%2022%206%2C%2045%209%20T%2090%207%22%2F%3E%3Cpath%20d%3D%22M0%2024%20Q%2030%2027%2C%2055%2024%20T%2090%2026%22%2F%3E%3Cpath%20d%3D%22M0%2041%20Q%2020%2038%2C%2048%2042%20T%2090%2040%22%2F%3E%3Cpath%20d%3D%22M0%2055%20Q%2028%2058%2C%2052%2054%20T%2090%2056%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"); --tex-size:90px;
+  --glass:rgba(243,234,216,.7); --glass-line:rgba(60,47,28,.1);
   --bg:#f3ead8; --bg-2:#ecdfc7; --card:#fbf4e6; --card-2:#f1e6d0;
   --line:#d8c8a8; --ink:#3c2f1c; --ink-soft:#79684c; --ink-faint:#a8977a;
   --accent:#a5601b; --accent-ink:#ffffff; --accent-sl:#edd9b8;
@@ -86,6 +98,8 @@ html[data-theme="sepia"]{
   --accent-2:#c9853d; --glow:165,96,27;
 }
 html[data-theme="porcelain"]{
+  --tex:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22120%22%20height%3D%22120%22%20viewBox%3D%220%200%20120%20120%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%232456b0%22%20stroke-opacity%3D%220.10%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22round%22%3E%3Cpath%20d%3D%22M8%20112%20C%2030%2096%2C%2026%2074%2C%2014%2060%20C%204%2048%2C%2010%2030%2C%2026%2026%22%2F%3E%3Cpath%20d%3D%22M112%2010%20C%2092%2024%2C%2096%2046%2C%20108%2060%20C%20118%2072%2C%20112%2092%2C%2094%2096%22%2F%3E%3Cpath%20d%3D%22M60%20118%20C%2066%20104%2C%2060%2096%2C%2050%2092%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22%232456b0%22%20fill-opacity%3D%220.10%22%3E%3Cellipse%20cx%3D%2230%22%20cy%3D%2222%22%20rx%3D%229%22%20ry%3D%223.6%22%20transform%3D%22rotate(-30%2030%2022)%22%2F%3E%3Cellipse%20cx%3D%2218%22%20cy%3D%2252%22%20rx%3D%228%22%20ry%3D%223.2%22%20transform%3D%22rotate(40%2018%2052)%22%2F%3E%3Cellipse%20cx%3D%22100%22%20cy%3D%2290%22%20rx%3D%229%22%20ry%3D%223.6%22%20transform%3D%22rotate(-35%20100%2090)%22%2F%3E%3Cellipse%20cx%3D%22108%22%20cy%3D%2238%22%20rx%3D%227%22%20ry%3D%223%22%20transform%3D%22rotate(30%20108%2038)%22%2F%3E%3Cellipse%20cx%3D%2252%22%20cy%3D%22100%22%20rx%3D%227%22%20ry%3D%222.8%22%20transform%3D%22rotate(-15%2052%20100)%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22%232456b0%22%20fill-opacity%3D%220.12%22%3E%3Cg%20transform%3D%22translate(62%2C58)%22%3E%3Cellipse%20rx%3D%224.2%22%20ry%3D%229%22%20transform%3D%22rotate(0)%22%2F%3E%3Cellipse%20rx%3D%224.2%22%20ry%3D%229%22%20transform%3D%22rotate(72)%22%2F%3E%3Cellipse%20rx%3D%224.2%22%20ry%3D%229%22%20transform%3D%22rotate(144)%22%2F%3E%3Cellipse%20rx%3D%224.2%22%20ry%3D%229%22%20transform%3D%22rotate(216)%22%2F%3E%3Cellipse%20rx%3D%224.2%22%20ry%3D%229%22%20transform%3D%22rotate(288)%22%2F%3E%3Ccircle%20r%3D%223.2%22%20fill-opacity%3D%220.16%22%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%2222%22%20cy%3D%2286%22%20r%3D%221.8%22%2F%3E%3Ccircle%20cx%3D%2294%22%20cy%3D%2220%22%20r%3D%221.8%22%2F%3E%3Ccircle%20cx%3D%2286%22%20cy%3D%22112%22%20r%3D%221.5%22%2F%3E%3Ccircle%20cx%3D%2234%22%20cy%3D%228%22%20r%3D%221.5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"); --tex-size:120px;
+  --glass:rgba(244,247,251,.7); --glass-line:rgba(36,86,176,.12);
   --bg:#f4f7fb; --bg-2:#e9eef7; --card:#ffffff; --card-2:#f2f5fa;
   --line:#d6dfeb; --ink:#1c2b46; --ink-soft:#5b6b85; --ink-faint:#98a6bc;
   --accent:#2456b0; --accent-ink:#ffffff; --accent-sl:#dfe8f8;
@@ -96,7 +110,10 @@ html[data-theme="porcelain"]{
 html,body{margin:0;padding:0;}
 html{height:100%;}
 body{
-  font-family:var(--ff); background:var(--bg); color:var(--ink);
+  font-family:var(--ff); color:var(--ink);
+  background-color:var(--bg);
+  background-image:var(--tex);
+  background-size:var(--tex-size) var(--tex-size);
   font-size:16px; line-height:1.5;
   -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
   min-height:100vh; min-height:100dvh;
@@ -356,6 +373,32 @@ html[data-theme="light"] .lyrics .tagline{background:rgba(47,111,208,.1);}
 .setsheet .row .n{width:24px;font-size:13px;font-weight:800;color:var(--accent);text-align:right;flex:0 0 auto;}
 .setsheet .row .t{flex:1;min-width:0;font-weight:700;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .setsheet .row:active{background:var(--card);}
+
+/* ---------- СТЕКЛО (глассморфизм, как в новых iOS) ---------- */
+.stage-head,.stage-foot{
+  background:var(--glass);
+  -webkit-backdrop-filter:blur(18px) saturate(170%);
+  backdrop-filter:blur(18px) saturate(170%);
+}
+.stage-head{border-bottom:1px solid var(--glass-line);}
+.stage-foot{border-top:1px solid var(--glass-line);}
+.setsheet .panel,.themesheet .box,.pubsheet .box,.modal,.catbar{
+  background:var(--glass);
+  -webkit-backdrop-filter:blur(22px) saturate(170%);
+  backdrop-filter:blur(22px) saturate(170%);
+}
+.pgb{background:var(--glass);
+  -webkit-backdrop-filter:blur(14px) saturate(160%);
+  backdrop-filter:blur(14px) saturate(160%);
+  border-color:var(--glass-line);}
+/* лёгкий верхний блик на карточках — дороже на вид */
+.item,.homegrid .hbtn,.song,.mcard,.pubrow{box-shadow:inset 0 1px 0 var(--glass-line);}
+/* браузер без blur — обычные плотные панели */
+@supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))){
+  .stage-head,.stage-foot,.setsheet .panel,.themesheet .box,.pubsheet .box,.modal,.catbar,.pgb{
+    background:var(--bg-2);
+  }
+}
 
 /* ---------- ТОСТ ---------- */
 .toast{position:fixed;left:50%;transform:translateX(-50%) translateY(16px);bottom:calc(var(--sab) + 20px);
