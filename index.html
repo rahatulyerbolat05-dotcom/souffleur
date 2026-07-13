@@ -151,6 +151,81 @@ html[data-theme="marble"]{
   --play:#1f8a4c; --danger:#c8372c; --tag:#2f6fd0;
   --accent-2:#c9963f; --glow:154,107,31;
 }
+/* «Дюна» — тёплое стекло над песчаным закатом, серифные заголовки (реф 1) */
+html[data-theme="dune"]{
+  --tex:radial-gradient(640px 520px at 88% -6%, rgba(233,180,80,.30), transparent 65%),
+        radial-gradient(720px 560px at -10% 108%, rgba(226,150,60,.18), transparent 62%),
+        url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cg%20fill%3D%22%23221f18%22%20fill-opacity%3D%220.03%22%3E%3Ccircle%20cx%3D%223%22%20cy%3D%225%22%20r%3D%220.8%22/%3E%3Ccircle%20cx%3D%2214%22%20cy%3D%222%22%20r%3D%220.6%22/%3E%3Ccircle%20cx%3D%2220%22%20cy%3D%229%22%20r%3D%220.7%22/%3E%3Ccircle%20cx%3D%228%22%20cy%3D%2213%22%20r%3D%220.6%22/%3E%3Ccircle%20cx%3D%2217%22%20cy%3D%2217%22%20r%3D%220.8%22/%3E%3C/g%3E%3C/svg%3E");
+  --tex-size:auto,auto,24px;
+  --glass:rgba(244,238,225,.64); --glass-line:rgba(38,33,26,.09);
+  --bg:#f4eee1; --bg-2:#ede4d2; --card:#fffdf8; --card-2:#f6f0e3;
+  --line:#e3d9c4; --ink:#26211a; --ink-soft:#6e6350; --ink-faint:#a3987f;
+  --accent:#a06a14; --accent-ink:#ffffff; --accent-sl:#f2e6cd;
+  --berry:#b0486e; --berry-sl:#f7e2ea; --green:#1f8a4c; --green-sl:#e0f2e7;
+  --play:#1f8a4c; --danger:#c8372c; --tag:#2f6fd0;
+  --accent-2:#d9a441; --glow:160,106,20;
+}
+html[data-theme="dune"] h1,html[data-theme="dune"] .stage-head .t{
+  font-family:Georgia,'Times New Roman',serif;font-weight:600;letter-spacing:0;}
+/* «Аура» — пастельный градиент и полупрозрачные карточки (реф 3) */
+html[data-theme="aura"]{
+  --tex:radial-gradient(520px 420px at 15% 10%, rgba(122,110,228,.17), transparent 62%),
+        radial-gradient(540px 460px at 86% 28%, rgba(88,190,140,.15), transparent 62%),
+        radial-gradient(640px 520px at 55% 102%, rgba(90,160,235,.16), transparent 66%),
+        linear-gradient(135deg,#e8eafb 0%,#eaf6ef 55%,#e4f0fa 100%);
+  --tex-size:auto,auto,auto,auto;
+  --glass:rgba(240,243,252,.58); --glass-line:rgba(255,255,255,.7);
+  --bg:#eaeefa; --bg-2:#e2e8f6; --card:#ffffff; --card-2:#f1f4fb;
+  --line:#d5dbea; --ink:#272b36; --ink-soft:#5c6274; --ink-faint:#9aa1b5;
+  --accent:#6a5ae0; --accent-ink:#ffffff; --accent-sl:#e4e0fa;
+  --berry:#c2508a; --berry-sl:#f8e0ee; --green:#2a9d64; --green-sl:#def2e7;
+  --play:#2a9d64; --danger:#c8372c; --tag:#3a6ad0;
+  --accent-2:#8f7bff; --glow:106,90,224;
+}
+html[data-theme="aura"] .item,html[data-theme="aura"] .homegrid .hbtn,
+html[data-theme="aura"] .pubrow,html[data-theme="aura"] .pickrow,html[data-theme="aura"] .ordrow{
+  background:rgba(255,255,255,.55);border-color:rgba(255,255,255,.85);}
+/* «Оникс» — чистый чёрный с неоновым переливом (реф 4) */
+html[data-theme="onyx"]{
+  --tex:none; --tex-size:auto;
+  --glass:rgba(8,8,10,.6); --glass-line:rgba(255,255,255,.12);
+  --bg:#000000; --bg-2:#0b0b0d; --card:#111114; --card-2:#1a1a1e;
+  --line:#29292e; --ink:#f5f5f7; --ink-soft:#9d9da6; --ink-faint:#5c5c64;
+  --accent:#ff6aa9; --accent-ink:#23000f; --accent-sl:#2b1220;
+  --berry:#ffb340; --berry-sl:#2e2213; --green:#30d158; --green-sl:#0f2a18;
+  --play:#30d158; --danger:#ff453a; --tag:#7dd0ff;
+  --accent-2:#8b5cf6; --glow:255,106,169;
+}
+/* «Оранж» — кремовый минимал, чёрные пилюли, оранжевое пятно (реф 2) */
+html[data-theme="orange"]{
+  --tex:radial-gradient(480px 480px at 87% 92%, rgba(255,122,26,.40), rgba(255,122,26,0) 70%),
+        radial-gradient(340px 300px at 6% 18%, rgba(255,170,90,.16), transparent 65%),
+        url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cg%20fill%3D%22%23221f18%22%20fill-opacity%3D%220.03%22%3E%3Ccircle%20cx%3D%223%22%20cy%3D%225%22%20r%3D%220.8%22/%3E%3Ccircle%20cx%3D%2214%22%20cy%3D%222%22%20r%3D%220.6%22/%3E%3Ccircle%20cx%3D%2220%22%20cy%3D%229%22%20r%3D%220.7%22/%3E%3Ccircle%20cx%3D%228%22%20cy%3D%2213%22%20r%3D%220.6%22/%3E%3Ccircle%20cx%3D%2217%22%20cy%3D%2217%22%20r%3D%220.8%22/%3E%3C/g%3E%3C/svg%3E");
+  --tex-size:auto,auto,24px;
+  --glass:rgba(239,231,219,.66); --glass-line:rgba(27,21,14,.09);
+  --bg:#efe7db; --bg-2:#e7ddcd; --card:#fbf6ee; --card-2:#f2eadd;
+  --line:#dfd4c2; --ink:#1b150e; --ink-soft:#6b5f4e; --ink-faint:#a49780;
+  --accent:#1b150e; --accent-ink:#fff8ef; --accent-sl:#e9e0d1;
+  --berry:#e06a1f; --berry-sl:#fbe3cf; --green:#1f8a4c; --green-sl:#e0f2e7;
+  --play:#1f8a4c; --danger:#c8372c; --tag:#b45309;
+  --accent-2:#3a2f22; --glow:27,21,14;
+}
+/* «Пастель» — крем и четыре пастельных облака, чёрные кнопки (реф 5) */
+html[data-theme="pastel"]{
+  --tex:radial-gradient(360px 320px at 10% 5%, rgba(240,140,180,.20), transparent 65%),
+        radial-gradient(340px 300px at 92% 8%, rgba(245,205,90,.24), transparent 65%),
+        radial-gradient(400px 340px at 5% 95%, rgba(120,170,240,.17), transparent 65%),
+        radial-gradient(360px 320px at 93% 93%, rgba(130,200,140,.19), transparent 65%),
+        url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cg%20fill%3D%22%23221f18%22%20fill-opacity%3D%220.03%22%3E%3Ccircle%20cx%3D%223%22%20cy%3D%225%22%20r%3D%220.8%22/%3E%3Ccircle%20cx%3D%2214%22%20cy%3D%222%22%20r%3D%220.6%22/%3E%3Ccircle%20cx%3D%2220%22%20cy%3D%229%22%20r%3D%220.7%22/%3E%3Ccircle%20cx%3D%228%22%20cy%3D%2213%22%20r%3D%220.6%22/%3E%3Ccircle%20cx%3D%2217%22%20cy%3D%2217%22%20r%3D%220.8%22/%3E%3C/g%3E%3C/svg%3E");
+  --tex-size:auto,auto,auto,auto,24px;
+  --glass:rgba(247,241,228,.66); --glass-line:rgba(32,28,21,.09);
+  --bg:#f7f1e4; --bg-2:#f0e8d6; --card:#fffdf6; --card-2:#f5efe1;
+  --line:#e6dcc8; --ink:#201c15; --ink-soft:#6d6552; --ink-faint:#a79c83;
+  --accent:#171310; --accent-ink:#ffffff; --accent-sl:#ece4d2;
+  --berry:#d2588a; --berry-sl:#f9dfe9; --green:#2e8b57; --green-sl:#e0f2e7;
+  --play:#2e8b57; --danger:#c8372c; --tag:#4a76d0;
+  --accent-2:#4a3f33; --glow:23,19,16;
+}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{margin:0;padding:0;}
 html{height:100%;}
@@ -158,7 +233,7 @@ body{
   font-family:var(--ff); color:var(--ink);
   background-color:var(--bg);
   background-image:var(--tex);
-  background-size:var(--tex-size) var(--tex-size);
+  background-size:var(--tex-size);
   font-size:16px; line-height:1.5;
   -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
   min-height:100vh; min-height:100dvh;
@@ -957,11 +1032,16 @@ var THEMES=[
   {id:'amethyst',  name:'Аметист',   g:'d', bg:'#14101d', acc:'#b18aff'},
   {id:'ocean',     name:'Океан',     g:'d', bg:'#071a1c', acc:'#4dd6c2'},
   {id:'gold',      name:'Голд',      g:'d', bg:'#131109', acc:'#e8c15f'},
+  {id:'onyx',      name:'Оникс',     g:'d', bg:'#000000', acc:'#ff6aa9'},
   {id:'light',     name:'Крем',      g:'l', bg:'#f6f3ec', acc:'#c97a10'},
   {id:'sepia',     name:'Пергамент', g:'l', bg:'#f3ead8', acc:'#a5601b'},
   {id:'porcelain', name:'Фарфор',    g:'l', bg:'#f5f8fc', acc:'#1d4fa8'},
   {id:'rose',      name:'Роза',      g:'l', bg:'#faf1f2', acc:'#c23f66'},
-  {id:'marble',    name:'Мрамор',    g:'l', bg:'#f7f7f5', acc:'#9a6b1f'}
+  {id:'marble',    name:'Мрамор',    g:'l', bg:'#f7f7f5', acc:'#9a6b1f'},
+  {id:'dune',      name:'Дюна',      g:'l', bg:'#f4eee1', acc:'#d9a441'},
+  {id:'aura',      name:'Аура',      g:'l', bg:'#eaeefa', acc:'#6a5ae0'},
+  {id:'orange',    name:'Оранж',     g:'l', bg:'#efe7db', acc:'#ff7a1a'},
+  {id:'pastel',    name:'Пастель',   g:'l', bg:'#f7f1e4', acc:'#f08cb4'}
 ];
 function themeMeta(id){ for(var i=0;i<THEMES.length;i++) if(THEMES[i].id===id) return THEMES[i]; return THEMES[0]; }
 function applyTheme(){
