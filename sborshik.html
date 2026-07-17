@@ -9,23 +9,346 @@
    СБОРЩИК ТЕКСТОВ для Суфлёра — в фирменном стиле приложения
    ============================================================ */
 :root{
-  --bg:#0e1013; --bg-2:#16191e; --card:#1c2027; --card-2:#242933;
-  --line:#303743; --ink:#f3f0e8; --ink-soft:#a8a294; --ink-faint:#6b675e;
-  --accent:#ffb454; --accent-ink:#1a1204; --accent-sl:#3a2c14;
-  --ok:#7ee0a3; --ok-ink:#0d2417; --danger:#ff7a70; --link:#8ec1ff;
-  --radius:16px; --radius-s:12px;
+  --bg:      #0e1013;
+  --bg-2:    #16191e;
+  --card:    #1c2027;
+  --card-2:  #242933;
+  --line:    #303743;
+  --ink:     #f3f0e8;   /* тёплый белый — легче глазам в темноте */
+  --ink-soft:#a8a294;
+  --ink-faint:#6b675e;
+  --accent:  #ffb454;   /* янтарь — не слепит со сцены */
+  --accent-ink:#1a1204;
+  --accent-sl:#3a2c14;
+  --play:    #7ee0a3;   /* зелёный — автопрокрутка активна */
+  --danger:  #ff7a70;
+  --tag:     #8ec1ff;   /* метки [Припев] */
+  --accent-2:#ff8f3d;   /* второй цвет градиента бренд-плашки */
+  --glow:    255,180,84; /* rgb свечения главных кнопок */
+  --radius:  16px;
+  --radius-s:12px;
+  --t-fast:.15s; --t-med:.26s;
+  --ease:cubic-bezier(.22,1,.36,1);
   --ff:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  --tex:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2226%22%20height%3D%2226%22%3E%3Cg%20stroke%3D%22%23ffffff%22%20stroke-opacity%3D%220.045%22%20stroke-width%3D%221%22%3E%3Cpath%20d%3D%22M-2%206%20L6%20-2%20M2%2028%20L28%202%20M20%2032%20L32%2020%22%2F%3E%3Cpath%20d%3D%22M-2%2020%20L20%20-2%20M6%2032%20L32%206%22%20stroke-opacity%3D%220.028%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  --tex-size:26px;
+  --glass:rgba(16,19,24,.62);
+  --glass-line:rgba(255,255,255,.09);
+  --sat:env(safe-area-inset-top,0px);
+  --sab:env(safe-area-inset-bottom,0px);
+  --sal:env(safe-area-inset-left,0px);
+  --sar:env(safe-area-inset-right,0px);
 }
 html[data-theme="light"]{
+  --tex:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cg%20fill%3D%22%23221f18%22%20fill-opacity%3D%220.035%22%3E%3Ccircle%20cx%3D%223%22%20cy%3D%225%22%20r%3D%220.8%22%2F%3E%3Ccircle%20cx%3D%2214%22%20cy%3D%222%22%20r%3D%220.6%22%2F%3E%3Ccircle%20cx%3D%2220%22%20cy%3D%229%22%20r%3D%220.7%22%2F%3E%3Ccircle%20cx%3D%228%22%20cy%3D%2213%22%20r%3D%220.6%22%2F%3E%3Ccircle%20cx%3D%2217%22%20cy%3D%2217%22%20r%3D%220.8%22%2F%3E%3Ccircle%20cx%3D%224%22%20cy%3D%2220%22%20r%3D%220.6%22%2F%3E%3Ccircle%20cx%3D%2222%22%20cy%3D%2222%22%20r%3D%220.5%22%2F%3E%3Ccircle%20cx%3D%2211%22%20cy%3D%2222%22%20r%3D%220.7%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"); --tex-size:24px;
+  --glass:rgba(246,243,236,.68); --glass-line:rgba(34,32,27,.09);
   --bg:#f6f3ec; --bg-2:#efeadf; --card:#ffffff; --card-2:#f4efe6;
   --line:#ddd6c8; --ink:#22201b; --ink-soft:#6f6a5e; --ink-faint:#a49d8e;
   --accent:#c97a10; --accent-ink:#fff; --accent-sl:#f7e5c8;
-  --ok:#1f8a4c; --ok-ink:#fff; --danger:#c8372c; --link:#2f6fd0;
+  --play:#1f8a4c; --danger:#c8372c; --tag:#2f6fd0;
+  --accent-2:#e8a13f; --glow:201,122,16;
 }
+html[data-theme="navy"]{
+  --glass:rgba(13,20,36,.62);
+  --bg:#0b1220; --bg-2:#101a2e; --card:#16233c; --card-2:#1d2c49;
+  --line:#2b3d5f; --ink:#eef3fb; --ink-soft:#9fb0c9; --ink-faint:#64748f;
+  --accent:#6cc4ff; --accent-ink:#04121f; --accent-sl:#14314a;
+  --play:#7ee0a3; --danger:#ff7a70; --tag:#ffd479;
+  --accent-2:#4a8fe8; --glow:108,196,255;
+}
+html[data-theme="emerald"]{
+  --glass:rgba(11,22,17,.62);
+  --bg:#0a1410; --bg-2:#0f1c15; --card:#12211a; --card-2:#182b22;
+  --line:#27412f; --ink:#edf7ef; --ink-soft:#a3bfae; --ink-faint:#5f7a6a;
+  --accent:#4ade80; --accent-ink:#052012; --accent-sl:#143425;
+  --play:#ffc861; --danger:#ff7a70; --tag:#8ec1ff;
+  --accent-2:#22b862; --glow:74,222,128;
+}
+html[data-theme="velvet"]{
+  --glass:rgba(27,15,20,.62);
+  --bg:#170d12; --bg-2:#1e1118; --card:#241419; --card-2:#2e1a21;
+  --line:#4a2a35; --ink:#f7eef0; --ink-soft:#c5a3ad; --ink-faint:#7d5f68;
+  --accent:#ff7d9d; --accent-ink:#26060f; --accent-sl:#3d1d29;
+  --play:#7ee0a3; --danger:#ff9a70; --tag:#ffca7a;
+  --accent-2:#e85a86; --glow:255,125,157;
+}
+html[data-theme="lime"]{
+  --glass:rgba(14,14,14,.64);
+  --bg:#0d0d0d; --bg-2:#141414; --card:#171717; --card-2:#202020;
+  --line:#303030; --ink:#f2f2f0; --ink-soft:#a3a39c; --ink-faint:#666660;
+  --accent:#c8f04a; --accent-ink:#141a02; --accent-sl:#2a3312;
+  --play:#6cc4ff; --danger:#ff7a70; --tag:#6cc4ff;
+  --accent-2:#93d637; --glow:200,240,74;
+}
+html[data-theme="sepia"]{
+  --tex:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2290%22%20height%3D%2260%22%3E%3Cg%20stroke%3D%22%236b4e1e%22%20stroke-opacity%3D%220.05%22%20stroke-width%3D%221%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M0%208%20Q%2022%206%2C%2045%209%20T%2090%207%22%2F%3E%3Cpath%20d%3D%22M0%2024%20Q%2030%2027%2C%2055%2024%20T%2090%2026%22%2F%3E%3Cpath%20d%3D%22M0%2041%20Q%2020%2038%2C%2048%2042%20T%2090%2040%22%2F%3E%3Cpath%20d%3D%22M0%2055%20Q%2028%2058%2C%2052%2054%20T%2090%2056%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"); --tex-size:90px;
+  --glass:rgba(243,234,216,.7); --glass-line:rgba(60,47,28,.1);
+  --bg:#f3ead8; --bg-2:#ecdfc7; --card:#fbf4e6; --card-2:#f1e6d0;
+  --line:#d8c8a8; --ink:#3c2f1c; --ink-soft:#79684c; --ink-faint:#a8977a;
+  --accent:#a5601b; --accent-ink:#ffffff; --accent-sl:#edd9b8;
+  --play:#2e7d4f; --danger:#b23a2e; --tag:#275e9e;
+  --accent-2:#c9853d; --glow:165,96,27;
+}
+html[data-theme="porcelain"]{
+  --tex:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2272%22%20height%3D%2272%22%20viewBox%3D%220%200%2072%2072%22%3E%3Cg%3E%3Ccircle%20cx%3D%2236%22%20cy%3D%2272%22%20r%3D%2236%22%20fill%3D%22%23f5f8fc%22%2F%3E%3Ccircle%20cx%3D%2236%22%20cy%3D%2272%22%20r%3D%2235%22%20fill%3D%22none%22%20stroke%3D%22%231d4fa8%22%20stroke-opacity%3D%220.11%22%20stroke-width%3D%221.3%22%2F%3E%3Ccircle%20cx%3D%2236%22%20cy%3D%2272%22%20r%3D%2227%22%20fill%3D%22none%22%20stroke%3D%22%231d4fa8%22%20stroke-opacity%3D%220.11%22%20stroke-width%3D%221.3%22%2F%3E%3Ccircle%20cx%3D%2236%22%20cy%3D%2272%22%20r%3D%2219%22%20fill%3D%22none%22%20stroke%3D%22%231d4fa8%22%20stroke-opacity%3D%220.11%22%20stroke-width%3D%221.3%22%2F%3E%3Ccircle%20cx%3D%2236%22%20cy%3D%2272%22%20r%3D%2211%22%20fill%3D%22none%22%20stroke%3D%22%231d4fa8%22%20stroke-opacity%3D%220.11%22%20stroke-width%3D%221.3%22%2F%3E%3Ccircle%20cx%3D%2236%22%20cy%3D%2272%22%20r%3D%222.2%22%20fill%3D%22%231d4fa8%22%20fill-opacity%3D%220.13%22%2F%3E%3C%2Fg%3E%3Cg%3E%3Ccircle%20cx%3D%220%22%20cy%3D%2236%22%20r%3D%2236%22%20fill%3D%22%23f5f8fc%22%2F%3E%3Ccircle%20cx%3D%220%22%20cy%3D%2236%22%20r%3D%2235%22%20fill%3D%22none%22%20stroke%3D%22%231d4fa8%22%20stroke-opacity%3D%220.11%22%20stroke-width%3D%221.3%22%2F%3E%3Ccircle%20cx%3D%220%22%20cy%3D%2236%22%20r%3D%2227%22%20fill%3D%22none%22%20stroke%3D%22%231d4fa8%22%20stroke-opacity%3D%220.11%22%20stroke-width%3D%221.3%22%2F%3E%3Ccircle%20cx%3D%220%22%20cy%3D%2236%22%20r%3D%2219%22%20fill%3D%22none%22%20stroke%3D%22%231d4fa8%22%20stroke-opacity%3D%220.11%22%20stroke-width%3D%221.3%22%2F%3E%3Ccircle%20cx%3D%220%22%20cy%3D%2236%22%20r%3D%2211%22%20fill%3D%22none%22%20stroke%3D%22%231d4fa8%22%20stroke-opacity%3D%220.11%22%20stroke-width%3D%221.3%22%2F%3E%3Ccircle%20cx%3D%220%22%20cy%3D%2236%22%20r%3D%222.2%22%20fill%3D%22%231d4fa8%22%20fill-opacity%3D%220.13%22%2F%3E%3C%2Fg%3E%3Cg%3E%3Ccircle%20cx%3D%2272%22%20cy%3D%2236%22%20r%3D%2236%22%20fill%3D%22%23f5f8fc%22%2F%3E%3Ccircle%20cx%3D%2272%22%20cy%3D%2236%22%20r%3D%2235%22%20fill%3D%22none%22%20stroke%3D%22%231d4fa8%22%20stroke-opacity%3D%220.11%22%20stroke-width%3D%221.3%22%2F%3E%3Ccircle%20cx%3D%2272%22%20cy%3D%2236%22%20r%3D%2227%22%20fill%3D%22none%22%20stroke%3D%22%231d4fa8%22%20stroke-opacity%3D%220.11%22%20stroke-width%3D%221.3%22%2F%3E%3Ccircle%20cx%3D%2272%22%20cy%3D%2236%22%20r%3D%2219%22%20fill%3D%22none%22%20stroke%3D%22%231d4fa8%22%20stroke-opacity%3D%220.11%22%20stroke-width%3D%221.3%22%2F%3E%3Ccircle%20cx%3D%2272%22%20cy%3D%2236%22%20r%3D%2211%22%20fill%3D%22none%22%20stroke%3D%22%231d4fa8%22%20stroke-opacity%3D%220.11%22%20stroke-width%3D%221.3%22%2F%3E%3Ccircle%20cx%3D%2272%22%20cy%3D%2236%22%20r%3D%222.2%22%20fill%3D%22%231d4fa8%22%20fill-opacity%3D%220.13%22%2F%3E%3C%2Fg%3E%3Cg%3E%3Ccircle%20cx%3D%2236%22%20cy%3D%220%22%20r%3D%2236%22%20fill%3D%22%23f5f8fc%22%2F%3E%3Ccircle%20cx%3D%2236%22%20cy%3D%220%22%20r%3D%2235%22%20fill%3D%22none%22%20stroke%3D%22%231d4fa8%22%20stroke-opacity%3D%220.11%22%20stroke-width%3D%221.3%22%2F%3E%3Ccircle%20cx%3D%2236%22%20cy%3D%220%22%20r%3D%2227%22%20fill%3D%22none%22%20stroke%3D%22%231d4fa8%22%20stroke-opacity%3D%220.11%22%20stroke-width%3D%221.3%22%2F%3E%3Ccircle%20cx%3D%2236%22%20cy%3D%220%22%20r%3D%2219%22%20fill%3D%22none%22%20stroke%3D%22%231d4fa8%22%20stroke-opacity%3D%220.11%22%20stroke-width%3D%221.3%22%2F%3E%3Ccircle%20cx%3D%2236%22%20cy%3D%220%22%20r%3D%2211%22%20fill%3D%22none%22%20stroke%3D%22%231d4fa8%22%20stroke-opacity%3D%220.11%22%20stroke-width%3D%221.3%22%2F%3E%3Ccircle%20cx%3D%2236%22%20cy%3D%220%22%20r%3D%222.2%22%20fill%3D%22%231d4fa8%22%20fill-opacity%3D%220.13%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"); --tex-size:72px;
+  --glass:rgba(245,248,252,.72); --glass-line:rgba(29,79,168,.14);
+  --bg:#f5f8fc; --bg-2:#eaf0f8; --card:#ffffff; --card-2:#f2f6fb;
+  --line:#cfdcec; --ink:#1a2942; --ink-soft:#54658a; --ink-faint:#96a5c0;
+  --accent:#1d4fa8; --accent-ink:#ffffff; --accent-sl:#dfe8f8;
+  --berry:#8a4bb0; --berry-sl:#efe4f8; --green:#1f8a4c; --green-sl:#e0f2e7;
+  --play:#1f8a4c; --danger:#c8372c; --tag:#1d4fa8;
+  --accent-2:#4a7ae0; --glow:29,79,168;
+}
+html[data-theme="amethyst"]{
+  --glass:rgba(20,16,29,.62);
+  --bg:#14101d; --bg-2:#191424; --card:#1e1830; --card-2:#262040;
+  --line:#383055; --ink:#f2eef8; --ink-soft:#a89fc2; --ink-faint:#6b6386;
+  --accent:#b18aff; --accent-ink:#1a0f2e; --accent-sl:#2e2347;
+  --play:#7ee0a3; --danger:#ff7a70; --tag:#ffd479;
+  --accent-2:#8a5fe8; --glow:177,138,255;
+}
+html[data-theme="ocean"]{
+  --glass:rgba(7,26,28,.62);
+  --bg:#071a1c; --bg-2:#0b2124; --card:#0e2629; --card-2:#143034;
+  --line:#24444a; --ink:#ecf7f7; --ink-soft:#9cc0c2; --ink-faint:#5d8184;
+  --accent:#4dd6c2; --accent-ink:#032220; --accent-sl:#12403c;
+  --play:#ffc861; --danger:#ff7a70; --tag:#8ec1ff;
+  --accent-2:#2aa896; --glow:77,214,194;
+}
+html[data-theme="gold"]{
+  --tex:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2226%22%20height%3D%2226%22%3E%3Cg%20stroke%3D%22%23e8c15f%22%20stroke-opacity%3D%220.05%22%20stroke-width%3D%221%22%3E%3Cpath%20d%3D%22M-2%206%20L6%20-2%20M2%2028%20L28%202%20M20%2032%20L32%2020%22%2F%3E%3Cpath%20d%3D%22M-2%2020%20L20%20-2%20M6%2032%20L32%206%22%20stroke-opacity%3D%220.03%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"); --tex-size:26px;
+  --glass:rgba(19,17,9,.64); --glass-line:rgba(232,193,95,.12);
+  --bg:#131109; --bg-2:#18150c; --card:#1c1913; --card-2:#26221a;
+  --line:#3d3627; --ink:#f5efe2; --ink-soft:#baa98a; --ink-faint:#7a6f58;
+  --accent:#e8c15f; --accent-ink:#241a04; --accent-sl:#3a3116;
+  --play:#7ee0a3; --danger:#ff8a70; --tag:#8ec1ff;
+  --accent-2:#c9a13f; --glow:232,193,95;
+}
+html[data-theme="rose"]{
+  --tex:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cg%20fill%3D%22%234a2733%22%20fill-opacity%3D%220.035%22%3E%3Ccircle%20cx%3D%223%22%20cy%3D%225%22%20r%3D%220.8%22%2F%3E%3Ccircle%20cx%3D%2214%22%20cy%3D%222%22%20r%3D%220.6%22%2F%3E%3Ccircle%20cx%3D%2220%22%20cy%3D%229%22%20r%3D%220.7%22%2F%3E%3Ccircle%20cx%3D%228%22%20cy%3D%2213%22%20r%3D%220.6%22%2F%3E%3Ccircle%20cx%3D%2217%22%20cy%3D%2217%22%20r%3D%220.8%22%2F%3E%3Ccircle%20cx%3D%224%22%20cy%3D%2220%22%20r%3D%220.6%22%2F%3E%3Ccircle%20cx%3D%2222%22%20cy%3D%2222%22%20r%3D%220.5%22%2F%3E%3Ccircle%20cx%3D%2211%22%20cy%3D%2222%22%20r%3D%220.7%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"); --tex-size:24px;
+  --glass:rgba(250,241,242,.68); --glass-line:rgba(74,39,51,.09);
+  --bg:#faf1f2; --bg-2:#f4e4e7; --card:#ffffff; --card-2:#faf3f4;
+  --line:#ecd6db; --ink:#33222a; --ink-soft:#7d616c; --ink-faint:#b39aa4;
+  --accent:#c23f66; --accent-ink:#ffffff; --accent-sl:#f7dfe7;
+  --play:#1f8a4c; --danger:#b23a2e; --tag:#2f6fd0;
+  --accent-2:#e0688c; --glow:194,63,102;
+}
+html[data-theme="marble"]{
+  --tex:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22420%22%20height%3D%22420%22%20viewBox%3D%220%200%20420%20420%22%3E%3Cg%20fill%3D%22%23aab0b8%22%3E%3Cellipse%20cx%3D%22130%22%20cy%3D%22120%22%20rx%3D%22150%22%20ry%3D%2290%22%20fill-opacity%3D%220.028%22%20transform%3D%22rotate(-24%20130%20120)%22%2F%3E%3Cellipse%20cx%3D%22330%22%20cy%3D%22330%22%20rx%3D%22130%22%20ry%3D%2280%22%20fill-opacity%3D%220.024%22%20transform%3D%22rotate(-30%20330%20330)%22%2F%3E%3Cellipse%20cx%3D%22300%22%20cy%3D%2280%22%20rx%3D%2290%22%20ry%3D%2250%22%20fill-opacity%3D%220.02%22%20transform%3D%22rotate(-18%20300%2080)%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%3E%3Cpath%20d%3D%22M%2024%20396%20C%20120%20310%2C%20160%20260%2C%20216%20208%20C%20276%20152%2C%20330%20116%2C%20396%2036%22%20stroke%3D%22%238f959e%22%20stroke-opacity%3D%220.05%22%20stroke-width%3D%229%22%2F%3E%3Cpath%20d%3D%22M%2020%20400%20C%20118%20312%2C%20158%20262%2C%20214%20210%20C%20274%20154%2C%20328%20118%2C%20400%2032%22%20stroke%3D%22%23767d88%22%20stroke-opacity%3D%220.16%22%20stroke-width%3D%222.4%22%2F%3E%3Cpath%20d%3D%22M%20214%20210%20C%20250%20198%2C%20282%20202%2C%20318%20178%22%20stroke%3D%22%23767d88%22%20stroke-opacity%3D%220.12%22%20stroke-width%3D%221.5%22%2F%3E%3Cpath%20d%3D%22M%20318%20178%20C%20340%20164%2C%20352%20150%2C%20372%20142%22%20stroke%3D%22%23767d88%22%20stroke-opacity%3D%220.08%22%20stroke-width%3D%221.1%22%2F%3E%3Cpath%20d%3D%22M%20158%20262%20C%20178%20246%2C%20184%20228%2C%20202%20214%22%20stroke%3D%22%23767d88%22%20stroke-opacity%3D%220.09%22%20stroke-width%3D%221.2%22%2F%3E%3Cpath%20d%3D%22M%20118%20312%20C%20100%20300%2C%2092%20282%2C%2076%20272%22%20stroke%3D%22%23767d88%22%20stroke-opacity%3D%220.08%22%20stroke-width%3D%221.1%22%2F%3E%3Cpath%20d%3D%22M%2060%2040%20C%20110%2066%2C%20170%2060%2C%20210%2092%20C%20240%20116%2C%20262%20118%2C%20296%20112%22%20stroke%3D%22%23818893%22%20stroke-opacity%3D%220.10%22%20stroke-width%3D%221.5%22%2F%3E%3Cpath%20d%3D%22M%20210%2092%20C%20224%2078%2C%20244%2074%2C%20258%2062%22%20stroke%3D%22%23818893%22%20stroke-opacity%3D%220.07%22%20stroke-width%3D%221%22%2F%3E%3Cpath%20d%3D%22M%20300%20386%20C%20330%20366%2C%20356%20368%2C%20386%20344%22%20stroke%3D%22%23818893%22%20stroke-opacity%3D%220.09%22%20stroke-width%3D%221.3%22%2F%3E%3Cpath%20d%3D%22M%2066%20172%20C%2084%20166%2C%2096%20170%2C%20112%20162%22%20stroke%3D%22%238f959e%22%20stroke-opacity%3D%220.06%22%20stroke-width%3D%220.9%22%2F%3E%3Cpath%20d%3D%22M%20236%20300%20C%20252%20292%2C%20262%20296%2C%20276%20288%22%20stroke%3D%22%238f959e%22%20stroke-opacity%3D%220.055%22%20stroke-width%3D%220.9%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"); --tex-size:420px;
+  --glass:rgba(247,247,245,.7); --glass-line:rgba(38,38,42,.09);
+  --bg:#f7f7f5; --bg-2:#efefec; --card:#ffffff; --card-2:#f4f4f1;
+  --line:#ddddd7; --ink:#26262a; --ink-soft:#63656d; --ink-faint:#a3a4a9;
+  --accent:#9a6b1f; --accent-ink:#ffffff; --accent-sl:#f2e8d5;
+  --berry:#8a4bb0; --berry-sl:#efe4f8; --green:#1f8a4c; --green-sl:#e0f2e7;
+  --play:#1f8a4c; --danger:#c8372c; --tag:#2f6fd0;
+  --accent-2:#c9963f; --glow:154,107,31;
+}
+html[data-theme="dune"]{
+  --tex:radial-gradient(640px 520px at 88% -6%, rgba(233,180,80,.30), transparent 65%),
+        radial-gradient(720px 560px at -10% 108%, rgba(226,150,60,.18), transparent 62%),
+        url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cg%20fill%3D%22%23221f18%22%20fill-opacity%3D%220.03%22%3E%3Ccircle%20cx%3D%223%22%20cy%3D%225%22%20r%3D%220.8%22/%3E%3Ccircle%20cx%3D%2214%22%20cy%3D%222%22%20r%3D%220.6%22/%3E%3Ccircle%20cx%3D%2220%22%20cy%3D%229%22%20r%3D%220.7%22/%3E%3Ccircle%20cx%3D%228%22%20cy%3D%2213%22%20r%3D%220.6%22/%3E%3Ccircle%20cx%3D%2217%22%20cy%3D%2217%22%20r%3D%220.8%22/%3E%3C/g%3E%3C/svg%3E");
+  --tex-size:auto,auto,24px;
+  --glass:rgba(244,238,225,.64); --glass-line:rgba(38,33,26,.09);
+  --bg:#f4eee1; --bg-2:#ede4d2; --card:#fffdf8; --card-2:#f6f0e3;
+  --line:#e3d9c4; --ink:#26211a; --ink-soft:#6e6350; --ink-faint:#a3987f;
+  --accent:#a06a14; --accent-ink:#ffffff; --accent-sl:#f2e6cd;
+  --berry:#b0486e; --berry-sl:#f7e2ea; --green:#1f8a4c; --green-sl:#e0f2e7;
+  --play:#1f8a4c; --danger:#c8372c; --tag:#2f6fd0;
+  --accent-2:#d9a441; --glow:160,106,20;
+}
+html[data-theme="aura"]{
+  --tex:radial-gradient(520px 420px at 15% 10%, rgba(122,110,228,.17), transparent 62%),
+        radial-gradient(540px 460px at 86% 28%, rgba(88,190,140,.15), transparent 62%),
+        radial-gradient(640px 520px at 55% 102%, rgba(90,160,235,.16), transparent 66%),
+        linear-gradient(135deg,#e8eafb 0%,#eaf6ef 55%,#e4f0fa 100%);
+  --tex-size:auto,auto,auto,auto;
+  --glass:rgba(240,243,252,.58); --glass-line:rgba(255,255,255,.7);
+  --bg:#eaeefa; --bg-2:#e2e8f6; --card:#ffffff; --card-2:#f1f4fb;
+  --line:#d5dbea; --ink:#272b36; --ink-soft:#5c6274; --ink-faint:#9aa1b5;
+  --accent:#6a5ae0; --accent-ink:#ffffff; --accent-sl:#e4e0fa;
+  --berry:#c2508a; --berry-sl:#f8e0ee; --green:#2a9d64; --green-sl:#def2e7;
+  --play:#2a9d64; --danger:#c8372c; --tag:#3a6ad0;
+  --accent-2:#8f7bff; --glow:106,90,224;
+}
+html[data-theme="onyx"]{
+  --tex:none; --tex-size:auto;
+  --glass:rgba(8,8,10,.6); --glass-line:rgba(255,255,255,.12);
+  --bg:#000000; --bg-2:#0b0b0d; --card:#111114; --card-2:#1a1a1e;
+  --line:#29292e; --ink:#f5f5f7; --ink-soft:#9d9da6; --ink-faint:#5c5c64;
+  --accent:#ff6aa9; --accent-ink:#23000f; --accent-sl:#2b1220;
+  --berry:#ffb340; --berry-sl:#2e2213; --green:#30d158; --green-sl:#0f2a18;
+  --play:#30d158; --danger:#ff453a; --tag:#7dd0ff;
+  --accent-2:#8b5cf6; --glow:255,106,169;
+}
+html[data-theme="orange"]{
+  --tex:radial-gradient(480px 480px at 87% 92%, rgba(255,122,26,.40), rgba(255,122,26,0) 70%),
+        radial-gradient(340px 300px at 6% 18%, rgba(255,170,90,.16), transparent 65%),
+        url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cg%20fill%3D%22%23221f18%22%20fill-opacity%3D%220.03%22%3E%3Ccircle%20cx%3D%223%22%20cy%3D%225%22%20r%3D%220.8%22/%3E%3Ccircle%20cx%3D%2214%22%20cy%3D%222%22%20r%3D%220.6%22/%3E%3Ccircle%20cx%3D%2220%22%20cy%3D%229%22%20r%3D%220.7%22/%3E%3Ccircle%20cx%3D%228%22%20cy%3D%2213%22%20r%3D%220.6%22/%3E%3Ccircle%20cx%3D%2217%22%20cy%3D%2217%22%20r%3D%220.8%22/%3E%3C/g%3E%3C/svg%3E");
+  --tex-size:auto,auto,24px;
+  --glass:rgba(239,231,219,.66); --glass-line:rgba(27,21,14,.09);
+  --bg:#efe7db; --bg-2:#e7ddcd; --card:#fbf6ee; --card-2:#f2eadd;
+  --line:#dfd4c2; --ink:#1b150e; --ink-soft:#6b5f4e; --ink-faint:#a49780;
+  --accent:#1b150e; --accent-ink:#fff8ef; --accent-sl:#e9e0d1;
+  --berry:#e06a1f; --berry-sl:#fbe3cf; --green:#1f8a4c; --green-sl:#e0f2e7;
+  --play:#1f8a4c; --danger:#c8372c; --tag:#b45309;
+  --accent-2:#3a2f22; --glow:27,21,14;
+}
+html[data-theme="pastel"]{
+  --tex:radial-gradient(360px 320px at 10% 5%, rgba(240,140,180,.20), transparent 65%),
+        radial-gradient(340px 300px at 92% 8%, rgba(245,205,90,.24), transparent 65%),
+        radial-gradient(400px 340px at 5% 95%, rgba(120,170,240,.17), transparent 65%),
+        radial-gradient(360px 320px at 93% 93%, rgba(130,200,140,.19), transparent 65%),
+        url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%3E%3Cg%20fill%3D%22%23221f18%22%20fill-opacity%3D%220.03%22%3E%3Ccircle%20cx%3D%223%22%20cy%3D%225%22%20r%3D%220.8%22/%3E%3Ccircle%20cx%3D%2214%22%20cy%3D%222%22%20r%3D%220.6%22/%3E%3Ccircle%20cx%3D%2220%22%20cy%3D%229%22%20r%3D%220.7%22/%3E%3Ccircle%20cx%3D%228%22%20cy%3D%2213%22%20r%3D%220.6%22/%3E%3Ccircle%20cx%3D%2217%22%20cy%3D%2217%22%20r%3D%220.8%22/%3E%3C/g%3E%3C/svg%3E");
+  --tex-size:auto,auto,auto,auto,24px;
+  --glass:rgba(247,241,228,.66); --glass-line:rgba(32,28,21,.09);
+  --bg:#f7f1e4; --bg-2:#f0e8d6; --card:#fffdf6; --card-2:#f5efe1;
+  --line:#e6dcc8; --ink:#201c15; --ink-soft:#6d6552; --ink-faint:#a79c83;
+  --accent:#171310; --accent-ink:#ffffff; --accent-sl:#ece4d2;
+  --berry:#d2588a; --berry-sl:#f9dfe9; --green:#2e8b57; --green-sl:#e0f2e7;
+  --play:#2e8b57; --danger:#c8372c; --tag:#4a76d0;
+  --accent-2:#4a3f33; --glow:23,19,16;
+}
+html[data-theme="dune"] h1,html[data-theme="dune"] .stage-head .t{
+  font-family:Georgia,'Times New Roman',serif;font-weight:600;letter-spacing:0;}
+html[data-theme="aura"] .item,html[data-theme="aura"] .homegrid .hbtn,
+html[data-theme="aura"] .pubrow,html[data-theme="aura"] .pickrow,html[data-theme="aura"] .ordrow{
+  background:rgba(255,255,255,.55);border-color:rgba(255,255,255,.85);}
+html[data-theme="light"] .warnbox{background:#fbe3d4;border-color:#e0956a;color:#7a3c14;}
+html[data-theme="light"] .warnbox b{color:#5e2c0a;}
+html[data-theme="light"] .fb[data-fmt="Куплет"],html[data-theme="sepia"] .fb[data-fmt="Куплет"],html[data-theme="porcelain"] .fb[data-fmt="Куплет"]{color:#b06a10;}
+html[data-theme="light"] .fb[data-fmt="Припев"],html[data-theme="sepia"] .fb[data-fmt="Припев"],html[data-theme="porcelain"] .fb[data-fmt="Припев"]{color:#c23a68;}
+html[data-theme="light"] .fb[data-fmt="Бридж"],html[data-theme="sepia"] .fb[data-fmt="Бридж"],html[data-theme="porcelain"] .fb[data-fmt="Бридж"]{color:#2e6cb8;}
+html[data-theme="light"] .fb[data-fmt="Интро"],html[data-theme="sepia"] .fb[data-fmt="Интро"],html[data-theme="porcelain"] .fb[data-fmt="Интро"]{color:#237a48;}
+html[data-theme="light"] .fb[data-fmt="Предприпев"],html[data-theme="sepia"] .fb[data-fmt="Предприпев"],html[data-theme="porcelain"] .fb[data-fmt="Предприпев"]{color:#6a4bb0;}
+html[data-theme="light"] .fb[data-fmt="Финал"],html[data-theme="sepia"] .fb[data-fmt="Финал"],html[data-theme="porcelain"] .fb[data-fmt="Финал"]{color:#b23a2e;}
+/* светлые фотообои — тёмные цвета кнопок формата */
+html[data-theme="wp-manor"] .fb[data-fmt="Куплет"],html[data-theme="wp-lagoon"] .fb[data-fmt="Куплет"],html[data-theme="wp-vangogh"] .fb[data-fmt="Куплет"],html[data-theme="wp-barkhan"] .fb[data-fmt="Куплет"],html[data-theme="wp-bloom"] .fb[data-fmt="Куплет"]{color:#b06a10;}
+html[data-theme="wp-manor"] .fb[data-fmt="Припев"],html[data-theme="wp-lagoon"] .fb[data-fmt="Припев"],html[data-theme="wp-vangogh"] .fb[data-fmt="Припев"],html[data-theme="wp-barkhan"] .fb[data-fmt="Припев"],html[data-theme="wp-bloom"] .fb[data-fmt="Припев"]{color:#c23a68;}
+html[data-theme="wp-manor"] .fb[data-fmt="Бридж"],html[data-theme="wp-lagoon"] .fb[data-fmt="Бридж"],html[data-theme="wp-vangogh"] .fb[data-fmt="Бридж"],html[data-theme="wp-barkhan"] .fb[data-fmt="Бридж"],html[data-theme="wp-bloom"] .fb[data-fmt="Бридж"]{color:#2e6cb8;}
+html[data-theme="wp-manor"] .fb[data-fmt="Интро"],html[data-theme="wp-lagoon"] .fb[data-fmt="Интро"],html[data-theme="wp-vangogh"] .fb[data-fmt="Интро"],html[data-theme="wp-barkhan"] .fb[data-fmt="Интро"],html[data-theme="wp-bloom"] .fb[data-fmt="Интро"]{color:#237a48;}
+html[data-theme="wp-manor"] .fb[data-fmt="Предприпев"],html[data-theme="wp-lagoon"] .fb[data-fmt="Предприпев"],html[data-theme="wp-vangogh"] .fb[data-fmt="Предприпев"],html[data-theme="wp-barkhan"] .fb[data-fmt="Предприпев"],html[data-theme="wp-bloom"] .fb[data-fmt="Предприпев"]{color:#6a4bb0;}
+html[data-theme="wp-manor"] .fb[data-fmt="Финал"],html[data-theme="wp-lagoon"] .fb[data-fmt="Финал"],html[data-theme="wp-vangogh"] .fb[data-fmt="Финал"],html[data-theme="wp-barkhan"] .fb[data-fmt="Финал"],html[data-theme="wp-bloom"] .fb[data-fmt="Финал"]{color:#b23a2e;}
+html[data-theme="light"] .lyrics .tagline{background:rgba(47,111,208,.1);}
+html[data-theme="porcelain"] .item,
+html[data-theme="porcelain"] .homegrid .hbtn,
+html[data-theme="porcelain"] .song,
+html[data-theme="porcelain"] .pubrow{
+  border-color:rgba(29,79,168,.16);
+  box-shadow:0 2px 10px -4px rgba(29,79,168,.14), inset 0 1px 0 #ffffff;
+}
+/* ============ ФОТООБОИ — те же 7 тем, что в приложении ============ */
+html[data-theme^="wp-"]{background-color:var(--bg);}
+html[data-theme^="wp-"]::before{
+  content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background-image:var(--veil),var(--wp);
+  background-size:cover;
+  background-position:center,var(--wp-pos,center);
+  background-repeat:no-repeat;
+}
+html[data-theme^="wp-"] body{background:none;}
+html[data-theme="wp-manor"]{
+  --wp:url("wp_manor.jpg");
+  --veil:linear-gradient(rgba(244,244,244,.55),rgba(244,244,244,.55));
+  --stage-veil:rgba(246,246,246,.84);
+  --tex:none; --tex-size:auto;
+  --glass:rgba(240,240,240,.62); --glass-line:rgba(30,30,34,.13);
+  --bg:#ececec; --bg-2:#e2e2e2; --card:rgba(255,255,255,.78); --card-2:rgba(246,246,246,.85);
+  --line:rgba(60,60,66,.17); --ink:#1d1d1f; --ink-soft:#55555c; --ink-faint:#8e8e94;
+  --accent:#2b2b30; --accent-ink:#ffffff; --accent-sl:rgba(43,43,48,.1);
+  --berry:#7d5a94; --berry-sl:#ece2f4; --green:#1f8a4c; --green-sl:#e0f2e7;
+  --play:#1f8a4c; --danger:#c8372c; --tag:#46639b;
+  --accent-2:#55555c; --glow:43,43,48;
+}
+html[data-theme="wp-lagoon"]{
+  --wp:url("wp_lagoon.jpg");
+  --veil:linear-gradient(rgba(232,240,224,.42),rgba(232,240,224,.42));
+  --stage-veil:rgba(238,244,232,.84);
+  --tex:none; --tex-size:auto;
+  --glass:rgba(236,243,229,.6); --glass-line:rgba(34,64,42,.13);
+  --bg:#dde8d4; --bg-2:#d2dfc6; --card:rgba(255,255,255,.75); --card-2:rgba(247,251,243,.82);
+  --line:rgba(44,74,52,.18); --ink:#1c2b1e; --ink-soft:#4c6350; --ink-faint:#84977d;
+  --accent:#2e6b4f; --accent-ink:#ffffff; --accent-sl:rgba(46,107,79,.13);
+  --berry:#b0486e; --berry-sl:#f7e2ea; --green:#1f8a4c; --green-sl:#def0e2;
+  --play:#16794a; --danger:#c8372c; --tag:#2f6fa8;
+  --accent-2:#4f9673; --glow:46,107,79;
+}
+html[data-theme="wp-dusk"]{
+  --wp:url("wp_dusk.jpg");
+  --veil:linear-gradient(rgba(26,30,36,.62),rgba(24,28,34,.66));
+  --stage-veil:rgba(24,28,33,.82);
+  --tex:none; --tex-size:auto;
+  --glass:rgba(20,24,29,.6); --glass-line:rgba(255,255,255,.1);
+  --bg:#23282e; --bg-2:#1d2126; --card:rgba(36,42,50,.72); --card-2:rgba(46,53,62,.8);
+  --line:rgba(255,255,255,.14); --ink:#eef1f4; --ink-soft:#a6afb8; --ink-faint:#6a747c;
+  --accent:#ffb054; --accent-ink:#221604; --accent-sl:rgba(255,176,84,.16);
+  --berry:#9db8d8; --berry-sl:rgba(157,184,216,.16); --green:#7ee0a3; --green-sl:rgba(126,224,163,.15);
+  --play:#7ee0a3; --danger:#ff7a70; --tag:#8ec1ff;
+  --accent-2:#ff8f3d; --glow:255,176,84;
+}
+html[data-theme="wp-vangogh"]{
+  --wp:url("wp_vangogh.jpg"); --wp-pos:64% 50%;
+  --veil:linear-gradient(rgba(240,238,222,.5),rgba(240,238,222,.5));
+  --stage-veil:rgba(243,241,228,.85);
+  --tex:none; --tex-size:auto;
+  --glass:rgba(240,238,224,.62); --glass-line:rgba(50,50,32,.13);
+  --bg:#e6e4d2; --bg-2:#dcd9c2; --card:rgba(255,254,246,.78); --card-2:rgba(250,249,240,.85);
+  --line:rgba(60,60,40,.18); --ink:#23241c; --ink-soft:#5c5d48; --ink-faint:#94957e;
+  --accent:#2a5db0; --accent-ink:#ffffff; --accent-sl:rgba(42,93,176,.12);
+  --berry:#a8842a; --berry-sl:#f2e8c8; --green:#1f8a4c; --green-sl:#e0f2e7;
+  --play:#1f8a4c; --danger:#c8372c; --tag:#2e7d4f;
+  --accent-2:#5b82d8; --glow:42,93,176;
+}
+html[data-theme="wp-barkhan"]{
+  --wp:url("wp_barkhan.jpg");
+  --veil:linear-gradient(rgba(248,238,222,.35),rgba(248,238,222,.4));
+  --stage-veil:rgba(248,240,226,.86);
+  --tex:none; --tex-size:auto;
+  --glass:rgba(250,242,228,.6); --glass-line:rgba(70,48,22,.13);
+  --bg:#e8d9c0; --bg-2:#dfcdae; --card:rgba(255,250,240,.78); --card-2:rgba(250,244,234,.85);
+  --line:rgba(80,55,25,.18); --ink:#241a10; --ink-soft:#6b5335; --ink-faint:#a08b6d;
+  --accent:#b05e12; --accent-ink:#ffffff; --accent-sl:rgba(176,94,18,.13);
+  --berry:#a8552c; --berry-sl:#f5e0d4; --green:#1f8a4c; --green-sl:#e0f2e7;
+  --play:#1f8a4c; --danger:#c8372c; --tag:#1268a8;
+  --accent-2:#d9873b; --glow:176,94,18;
+}
+html[data-theme="wp-mirage"]{
+  --wp:url("wp_mirage.jpg");
+  --veil:linear-gradient(rgba(20,15,6,.66),rgba(18,13,5,.5) 55%,rgba(10,8,4,.56));
+  --stage-veil:rgba(18,14,6,.8);
+  --tex:none; --tex-size:auto;
+  --glass:rgba(22,17,8,.62); --glass-line:rgba(255,220,150,.12);
+  --bg:#191307; --bg-2:#141006; --card:rgba(30,24,12,.7); --card-2:rgba(40,32,17,.78);
+  --line:rgba(255,220,150,.15); --ink:#f7efdc; --ink-soft:#c2b391; --ink-faint:#7d7154;
+  --accent:#ffa63d; --accent-ink:#241604; --accent-sl:rgba(255,166,61,.15);
+  --berry:#ffd479; --berry-sl:rgba(255,212,121,.15); --green:#7ee0a3; --green-sl:rgba(126,224,163,.15);
+  --play:#7ee0a3; --danger:#ff8a70; --tag:#ffd479;
+  --accent-2:#ff8f3d; --glow:255,166,61;
+}
+html[data-theme="wp-bloom"]{
+  --wp:url("wp_bloom.jpg");
+  --veil:linear-gradient(rgba(250,242,238,.45),rgba(250,242,238,.45));
+  --stage-veil:rgba(250,244,240,.86);
+  --tex:none; --tex-size:auto;
+  --glass:rgba(250,243,239,.62); --glass-line:rgba(80,45,40,.12);
+  --bg:#f3e8e2; --bg-2:#ecdcd4; --card:rgba(255,252,250,.78); --card-2:rgba(252,247,244,.85);
+  --line:rgba(90,55,50,.16); --ink:#33231f; --ink-soft:#7a5f58; --ink-faint:#ab938c;
+  --accent:#bb4265; --accent-ink:#ffffff; --accent-sl:rgba(187,66,101,.11);
+  --berry:#d2588a; --berry-sl:#f9dfe9; --green:#1f8a4c; --green-sl:#e0f2e7;
+  --play:#1f8a4c; --danger:#b23a2e; --tag:#8a5fb0;
+  --accent-2:#e0688c; --glow:187,66,101;
+}
+:root{ --ok:var(--play); --ok-ink:#06220f; --link:var(--tag); }
+html[data-theme]{ --ok:var(--play); --link:var(--tag); }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{margin:0;padding:0;}
-body{font-family:var(--ff);background:var(--bg);color:var(--ink);font-size:16px;line-height:1.5;
-  -webkit-font-smoothing:antialiased;padding-bottom:120px;}
+body{font-family:var(--ff);color:var(--ink);font-size:16px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;padding-bottom:130px;
+  background-color:var(--bg);
+  background-image:var(--tex);
+  background-size:var(--tex-size);}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;}
+}
 button,input,textarea{font-family:inherit;}
 button{cursor:pointer;}
 a{color:var(--link);}
@@ -43,6 +366,12 @@ a{color:var(--link);}
   border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;}
 .iconbtn:active{transform:scale(.95);}
 
+:root{ --spring:cubic-bezier(.34,1.4,.64,1); --ease:cubic-bezier(.22,1,.36,1); }
+button,.song .btn,.iconbtn,.fold,.dl,.mini,.close{ transition:transform .42s var(--spring), background-color .15s, color .15s, border-color .15s; }
+button:active{ transform:scale(.96); }
+@keyframes viewIn{ from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:none;} }
+.wrap{ animation:viewIn .34s var(--ease) both; }
+
 /* инструкция */
 .howto{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px;}
 .howto b{display:block;font-size:15px;margin-bottom:8px;}
@@ -53,6 +382,31 @@ a{color:var(--link);}
 .howto .fold{border:0;background:var(--card-2);color:var(--ink);font-weight:700;font-size:13px;
   padding:9px 14px;border-radius:10px;}
 .howto.folded ol,.howto.folded .mini{display:none;}
+
+/* поиск и фильтр */
+.sfilters{display:flex;gap:8px;margin:4px 0 10px;}
+.sfilters .srch{flex:1;position:relative;}
+.sfilters .srch input{width:100%;font-size:16px;color:var(--ink);background:var(--card);
+  border:1.5px solid var(--line);border-radius:12px;padding:11px 12px 11px 36px;-webkit-appearance:none;}
+.sfilters .srch input:focus{border-color:var(--accent);outline:none;}
+.sfilters .srch svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:16px;height:16px;
+  fill:none;stroke:var(--ink-faint);stroke-width:2;stroke-linecap:round;}
+.sfilters .onlyempty{flex:0 0 auto;border:1.5px solid var(--line);background:var(--card);color:var(--ink-soft);
+  font-size:13px;font-weight:700;padding:0 14px;border-radius:12px;}
+.sfilters .onlyempty.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
+
+/* формат-панель (переезжает в открытую карточку) */
+.fmtbar{display:flex;flex-direction:column;gap:7px;margin:0 0 9px;}
+.fmtrow{display:flex;gap:6px;flex-wrap:wrap;}
+.fmtrow .fb{flex:1 1 auto;min-width:0;height:38px;padding:0 11px;border:1.5px solid var(--line);background:var(--card);
+  color:var(--ink);border-radius:19px;font-weight:700;font-size:12.5px;display:flex;align-items:center;justify-content:center;}
+.fmtrow .fb.util{color:var(--ink-soft);}
+.fb[data-fmt="Куплет"]{color:#e8963f;border-color:rgba(232,150,63,.55);background:rgba(232,150,63,.1);}
+.fb[data-fmt="Припев"]{color:#ec5f8a;border-color:rgba(236,95,138,.55);background:rgba(236,95,138,.1);}
+.fb[data-fmt="Бридж"]{color:#5f9fe8;border-color:rgba(95,159,232,.55);background:rgba(95,159,232,.1);}
+.fb[data-fmt="Интро"]{color:#58b97c;border-color:rgba(88,185,124,.55);background:rgba(88,185,124,.12);}
+.fb[data-fmt="Предприпев"]{color:#a98fdc;border-color:rgba(169,143,220,.55);background:rgba(169,143,220,.12);}
+.fb[data-fmt="Финал"]{color:#e86a5f;border-color:rgba(232,106,95,.55);background:rgba(232,106,95,.1);}
 
 /* прогресс */
 .prog{position:sticky;top:0;z-index:20;background:var(--bg);padding:10px 0 8px;margin:0 -2px;}
@@ -114,7 +468,7 @@ html[data-theme="light"] .song .find{color:#8a5406;}
 .song .btn:active{transform:scale(.96);}
 .song .body{display:none;padding:0 14px 14px;}
 .song.open .body{display:block;}
-.song textarea{width:100%;min-height:180px;font-size:14px;line-height:1.55;color:var(--ink);background:var(--bg-2);
+.song textarea{width:100%;min-height:180px;overflow:hidden;font-size:14px;line-height:1.55;color:var(--ink);background:var(--bg-2);
   border:1.5px solid var(--line);border-radius:var(--radius-s);padding:12px;resize:vertical;}
 .song textarea:focus{border-color:var(--accent);outline:none;}
 .song .rowbtns{display:flex;gap:8px;margin-top:10px;}
@@ -125,7 +479,9 @@ html[data-theme="light"] .song .find{color:#8a5406;}
 .song.open .chev{transform:rotate(180deg);}
 
 /* нижняя панель */
-.bottom{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--bg-2);border-top:1px solid var(--line);
+.bottom{position:fixed;left:0;right:0;bottom:0;z-index:30;border-top:1px solid var(--glass-line,var(--line));
+  background:var(--glass,var(--bg-2));
+  -webkit-backdrop-filter:blur(20px) saturate(170%);backdrop-filter:blur(20px) saturate(170%);
   padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));}
 .bottom .in{max-width:760px;margin:0 auto;display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
 .bottom .dl{flex:1;min-width:220px;height:52px;border:0;border-radius:14px;background:var(--accent);color:var(--accent-ink);
@@ -146,7 +502,9 @@ html[data-theme="light"] .song .find{color:#8a5406;}
 .modal{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:20px;}
 .modal.show{display:flex;}
 .modal .dim{position:absolute;inset:0;background:rgba(0,0,0,.6);}
-.modal .box{position:relative;max-width:480px;width:100%;background:var(--card);border:1px solid var(--line);
+.modal .box{position:relative;max-width:480px;width:100%;background:var(--glass,var(--card));
+  -webkit-backdrop-filter:blur(22px) saturate(170%);backdrop-filter:blur(22px) saturate(170%);
+  border:1px solid var(--glass-line,var(--line));
   border-radius:20px;padding:22px;max-height:82vh;overflow:auto;}
 .modal h3{margin:0 0 10px;font-size:18px;}
 .modal p,.modal li{font-size:14px;color:var(--ink-soft);}
@@ -172,7 +530,7 @@ html[data-theme="light"] .song .find{color:#8a5406;}
       <p>для Суфлёра · <span id="totalN">0</span> песен из папки MINUS</p>
     </div>
     <div class="grow"></div>
-    <button class="iconbtn" id="themeBtn" title="Тема">◐</button>
+    <a class="iconbtn" id="appLink" href="index.html" title="Открыть Суфлёр" style="text-decoration:none">🎤</a>
   </header>
 
   <section class="howto" id="howto">
@@ -206,6 +564,13 @@ html[data-theme="light"] .song .find{color:#8a5406;}
     </div>
   </div>
 
+  <div class="sfilters">
+    <div class="srch">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" id="songFilter" placeholder="Найти песню…" autocomplete="off">
+    </div>
+    <button type="button" class="onlyempty" id="onlyEmpty">Только пустые</button>
+  </div>
   <nav class="gnav" id="gnav"></nav>
   <main id="list"></main>
 </div>
@@ -215,6 +580,7 @@ html[data-theme="light"] .song .find{color:#8a5406;}
     <label class="chk"><input type="checkbox" id="inclEmpty"> добавить в файл и песни без текста (появятся в Суфлёре с заметкой-заглушкой)</label>
     <button class="dl" id="dlBtn" disabled>Скачать файл для Суфлёра</button>
     <div class="side">
+      <button class="mini" id="pushSiteBtn" title="Отправить собранное прямо на сайт">🚀 На сайт</button>
       <button class="mini" id="dlSiteBtn" title="Файл каталога для загрузки в репозиторий GitHub">songs.json</button>
       <button class="mini" id="draftSaveBtn" title="Сохранить черновик в файл">Черновик ⬇</button>
       <button class="mini" id="draftLoadBtn" title="Загрузить черновик из файла">Черновик ⬆</button>
@@ -369,6 +735,115 @@ function refresh(){
 }
 function ruSongs(n){ var a=n%10,b=n%100; if(a===1&&b!==11)return n+' песня'; if(a>=2&&a<=4&&(b<10||b>=20))return n+' песни'; return n+' песен'; }
 
+/* ---------- поиск и фильтр ---------- */
+var q='', onlyEmpty=false;
+function applyFilter(){
+  var ql=q.trim().toLowerCase();
+  SONGS.forEach(function(s){
+    var c=$('card_'+s.id); if(!c) return;
+    var has=!!(texts[s.id]&&texts[s.id].trim());
+    var okQ=!ql || s.t.toLowerCase().indexOf(ql)!==-1;
+    var okE=!onlyEmpty || !has;
+    c.style.display=(okQ&&okE)?'':'none';
+  });
+  GROUPS.forEach(function(gr){
+    var any=SONGS.some(function(s){ return s.g===gr[0] && $('card_'+s.id) && $('card_'+s.id).style.display!=='none'; });
+    var h=$('g_'+gr[0]); if(h) h.style.display=any?'':'none';
+  });
+}
+$('songFilter').addEventListener('input',function(){ q=this.value; applyFilter(); });
+$('onlyEmpty').addEventListener('click',function(){
+  onlyEmpty=!onlyEmpty; this.classList.toggle('on',onlyEmpty); applyFilter();
+});
+
+/* ---------- формат-панель: одна, переезжает в открытую карточку ---------- */
+var FMT=document.createElement('div');
+FMT.className='fmtbar';
+FMT.innerHTML='<div class="fmtrow"><button type="button" class="fb util" data-act="selpar">▣ Блок</button>'+
+ '<button type="button" class="fb util" data-act="selline">+ строка</button>'+
+ '<button type="button" class="fb util" data-act="sellineminus">− строка</button></div>'+
+ '<div class="fmtrow"><button type="button" class="fb" data-fmt="Куплет">Куплет</button>'+
+ '<button type="button" class="fb" data-fmt="Припев">Припев</button>'+
+ '<button type="button" class="fb" data-fmt="Бридж">Бридж</button>'+
+ '<button type="button" class="fb" data-fmt="Интро">Интро</button>'+
+ '<button type="button" class="fb" data-fmt="Предприпев">Предприпев</button>'+
+ '<button type="button" class="fb" data-fmt="Финал">Финал</button></div>'+
+ '<div class="fmtrow"><button type="button" class="fb util" data-act="blank">⏎ Отступ</button>'+
+ '<button type="button" class="fb util" data-act="undo">↶ Назад</button>'+
+ '<button type="button" class="fb util" data-act="redo">↷ Вперёд</button></div>';
+var fmtTA=null, edHist=[], edPtr=-1, edTm=null;
+function fmtAttach(card, ta){
+  fmtTA=ta; edHist=[ta.value]; edPtr=0;
+  card.querySelector('.body').insertBefore(FMT, ta);
+}
+function edSnap(){ if(!fmtTA) return; var v=fmtTA.value;
+  if(edPtr>=0&&edHist[edPtr]===v) return;
+  edHist=edHist.slice(0,edPtr+1); edHist.push(v); if(edHist.length>60) edHist.shift(); edPtr=edHist.length-1; }
+function lineBounds(v,st,en){ var ls=v.lastIndexOf('\n',st-1)+1; var le=v.indexOf('\n',en); if(le===-1) le=v.length; return [ls,le]; }
+function fmtLabel(label){
+  var ta=fmtTA; if(!ta) return; var v=ta.value; edSnap();
+  var st=ta.selectionStart||0, en=ta.selectionEnd!=null?ta.selectionEnd:st;
+  var hasSel=en>st, b=lineBounds(v,st,en), ls=b[0], le=b[1];
+  var before=v.slice(0,ls), block=v.slice(ls,le), after=v.slice(le);
+  if(!hasSel && /^\[[^\]]+\]\s*$/.test(block)){
+    var t0=label;
+    if(label==='Куплет'){ var m0=0;(before+after).replace(/\[Куплет\s*(\d+)\]/g,function(m,n){m0=Math.max(m0,+n);return m;}); t0='Куплет '+(m0+1); }
+    ta.value=(before+'['+t0+']'+after).replace(/\n{3,}/g,'\n\n'); afterEdit(ta); return;
+  }
+  var mLead=block.match(/^\[[^\]]+\]\n?/); if(mLead) block=block.slice(mLead[0].length);
+  var mPrev=before.match(/(^|\n)\[[^\]]+\]\n$/); if(mPrev) before=before.slice(0,before.length-mPrev[0].length+(mPrev[1]?1:0));
+  var name=label;
+  if(label==='Куплет'){ var mx=0;(before+block+after).replace(/\[Куплет\s*(\d+)\]/g,function(m,n){mx=Math.max(mx,+n);return m;}); name='Куплет '+(mx+1); }
+  var pre=before?(/\n\s*\n$/.test(before)?'':(before.slice(-1)==='\n'?'\n':'\n\n')):'';
+  var post=hasSel?(after&&!/^\n\s*\n/.test(after)?(after.charAt(0)==='\n'?'\n':'\n\n'):''):'';
+  ta.value=(before+pre+'['+name+']\n'+block+post+after).replace(/\n{3,}/g,'\n\n');
+  afterEdit(ta);
+}
+function afterEdit(ta){
+  edSnap(); autoGrow(ta); ta.focus();
+  var id=ta.id.replace('ta_','');
+  setText(id, ta.value, false);
+}
+function fmtBlank(){ var ta=fmtTA; if(!ta) return; edSnap();
+  var st=ta.selectionStart||0; var ls=ta.value.lastIndexOf('\n',st-1)+1;
+  ta.value=(ta.value.slice(0,ls)+'\n'+ta.value.slice(ls)).replace(/\n{3,}/g,'\n\n'); afterEdit(ta); }
+function selParagraph(){ var ta=fmtTA; if(!ta) return; var v=ta.value, st=ta.selectionStart||0;
+  var up=v.lastIndexOf('\n\n',Math.max(0,st-1)); var a=up===-1?0:up+2;
+  var dn=v.indexOf('\n\n',st); var b=dn===-1?v.length:dn;
+  ta.focus(); try{ta.setSelectionRange(a,b);}catch(e){} }
+function selPlusLine(){ var ta=fmtTA; if(!ta) return; var v=ta.value;
+  var st=ta.selectionStart||0, en=ta.selectionEnd!=null?ta.selectionEnd:st, a,b;
+  if(en>st){ a=st; var nb=v.indexOf('\n',en+(v.charAt(en)==='\n'?1:0)); b=nb===-1?v.length:nb; }
+  else{ a=v.lastIndexOf('\n',st-1)+1; var le=v.indexOf('\n',st); b=le===-1?v.length:le; }
+  ta.focus(); try{ta.setSelectionRange(a,b);}catch(e){} }
+function selMinusLine(){ var ta=fmtTA; if(!ta) return; var v=ta.value;
+  var st=ta.selectionStart||0, en=ta.selectionEnd!=null?ta.selectionEnd:st;
+  if(en<=st) return; var ln=v.lastIndexOf('\n',en-1);
+  ta.focus(); try{ ta.setSelectionRange(st, ln<=st?st:ln); }catch(e){} }
+function edUndo(){ if(!fmtTA) return; edSnap(); if(edPtr<=0){toast('Это начало');return;} edPtr--; fmtTA.value=edHist[edPtr]; afterHist(); }
+function edRedo(){ if(!fmtTA) return; if(edPtr>=edHist.length-1){toast('Это самая свежая версия');return;} edPtr++; fmtTA.value=edHist[edPtr]; afterHist(); }
+function afterHist(){ autoGrow(fmtTA); var id=fmtTA.id.replace('ta_',''); setText(id,fmtTA.value,false); fmtTA.focus(); }
+function fmtHandler(e){
+  var b=e.target.closest('[data-fmt],[data-act]'); if(!b) return;
+  e.preventDefault();
+  var act=b.getAttribute('data-act');
+  if(b.hasAttribute('data-fmt')) fmtLabel(b.getAttribute('data-fmt'));
+  else if(act==='blank') fmtBlank();
+  else if(act==='selpar') selParagraph();
+  else if(act==='selline') selPlusLine();
+  else if(act==='sellineminus') selMinusLine();
+  else if(act==='undo') edUndo();
+  else if(act==='redo') edRedo();
+}
+if(window.PointerEvent) FMT.addEventListener('pointerdown',fmtHandler);
+else{ FMT.addEventListener('mousedown',fmtHandler); FMT.addEventListener('touchstart',fmtHandler,{passive:false}); }
+
+/* автовысота текстовых полей */
+function autoGrow(ta){ if(!ta) return; ta.style.height='auto'; ta.style.height=Math.max(180, ta.scrollHeight+4)+'px'; }
+document.addEventListener('input',function(e){
+  if(e.target && e.target.tagName==='TEXTAREA'){ autoGrow(e.target); clearTimeout(edTm); edTm=setTimeout(edSnap,600); }
+});
+
 /* клики по списку */
 document.addEventListener('click',function(e){
   var t=e.target.closest('[data-open],[data-paste],[data-clear]');
@@ -376,7 +851,10 @@ document.addEventListener('click',function(e){
   var id;
   if(t.hasAttribute('data-open')){
     id=t.getAttribute('data-open');
-    $('card_'+id).classList.toggle('open');
+    var card=$('card_'+id);
+    var willOpen=!card.classList.contains('open');
+    card.classList.toggle('open');
+    if(willOpen){ var ta=$('ta_'+id); fmtAttach(card,ta); autoGrow(ta); }
   } else if(t.hasAttribute('data-paste')){
     id=t.getAttribute('data-paste');
     doPaste(id);
@@ -437,6 +915,61 @@ $('dlBtn').addEventListener('click',function(){
   dl(name,JSON.stringify(p,null,1));
   $('dlName').textContent=name;
   $('afterModal').classList.add('show');
+});
+var PUB={owner:'rahatulyerbolat05-dotcom',repo:'souffleur',path:'songs.json',branch:'main'};
+function b64utf8(x){ return btoa(unescape(encodeURIComponent(x))); }
+$('pushSiteBtn').addEventListener('click',function(){
+  var tok=(sGet('sf_pub_v1')||'').trim();
+  if(!tok){ toast('Ключа нет: открой Суфлёр → «Отправить на сайт» → вставь ключ. Он общий.'); return; }
+  var filled=SONGS.filter(function(s){ return texts[s.id]&&texts[s.id].trim(); });
+  if(!filled.length){ toast('Пока ни одного текста'); return; }
+  var btn=this; btn.disabled=true; btn.textContent='Отправляю…';
+  function done(msg){ btn.disabled=false; btn.textContent='🚀 На сайт'; toast(msg); }
+  var api='https://api.github.com/repos/'+PUB.owner+'/'+PUB.repo+'/contents/'+PUB.path;
+  var H={'Authorization':'Bearer '+tok,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'};
+  fetch('songs.json?ts='+Date.now(),{cache:'no-store'})
+    .then(function(r){ return r.ok?r.json():{songs:[],sets:[]}; })
+    .catch(function(){ return {songs:[],sets:[]}; })
+    .then(function(remote){
+      if(!remote||!Array.isArray(remote.songs)) remote={songs:[],sets:[]};
+      var merged=remote.songs.map(function(r){ return {id:r.id,title:r.title,text:String(r.text),spd:r.spd}; });
+      var by={}; merged.forEach(function(r){ by[r.id]=r; });
+      var n=0;
+      filled.forEach(function(s){
+        var t=texts[s.id];
+        var o=by[s.id];
+        if(o){ if(o.text!==t||o.title!==s.t){ o.text=t; o.title=s.t; n++; } }
+        else{ merged.push({id:s.id,title:s.t,text:t}); by[s.id]={}; n++; }
+      });
+      merged.forEach(function(r){ if(typeof r.spd==='undefined') delete r.spd; });
+      /* групповые сэты: дополняем заполненными, порядок каталога */
+      var have={}; merged.forEach(function(r){ if(r.text&&r.text.trim()&&r.text.indexOf('не добавлен')===-1) have[r.id]=1; });
+      var gname={kz:'Казахские',ru:'Русские',en:'Английские'};
+      var sets=(remote.sets||[]).filter(function(st){ return ['set_kz','set_ru','set_en'].indexOf(st.id)===-1; });
+      ['kz','ru','en'].forEach(function(g){
+        var ids=SONGS.filter(function(s){ return s.g===g && have[s.id]; }).map(function(s){ return s.id; });
+        if(ids.length) sets.push({id:'set_'+g,name:gname[g],songIds:ids});
+      });
+      var body=JSON.stringify({app:'souffleur',version:1,exported:new Date().toISOString(),songs:merged,sets:sets},null,1);
+      return fetch(api+'?ref='+PUB.branch,{headers:H,cache:'no-store'}).then(function(r){
+        if(r.status===401||r.status===403) throw 'auth';
+        if(r.status===404) return null;
+        if(!r.ok) throw 'err';
+        return r.json();
+      }).then(function(cur){
+        var put={message:'Сборщик: тексты песен ('+n+' шт.)',content:b64utf8(body),branch:PUB.branch};
+        if(cur&&cur.sha) put.sha=cur.sha;
+        return fetch(api,{method:'PUT',headers:H,body:JSON.stringify(put)});
+      }).then(function(r){
+        if(r.status===401||r.status===403||r.status===404) throw 'auth';
+        if(r.status===409) throw 'again';
+        if(!r.ok) throw 'err';
+        done('Улетело на сайт ✓ Обновлено/добавлено: '+n);
+      });
+    })
+    .catch(function(e){
+      done(e==='auth'?'Ключ не подходит — проверь его в Суфлёре':(e==='again'?'Сайт занят, попробуй через минуту':'Не получилось — проверь интернет'));
+    });
 });
 $('dlSiteBtn').addEventListener('click',function(){
   var p=buildPayload($('inclEmpty').checked);
@@ -584,12 +1117,12 @@ $('foldBtn').addEventListener('click',function(){
 });
 if(sGet('sf_c_howto')==='1'){ $('howto').classList.add('folded'); $('foldBtn').textContent='Показать инструкцию'; }
 
-/* тема */
-function applyTheme(t){ document.documentElement.setAttribute('data-theme',t); }
-var th=sGet('sf_c_theme')||'dark'; applyTheme(th);
-$('themeBtn').addEventListener('click',function(){
-  th=(th==='dark')?'light':'dark'; applyTheme(th); sSet('sf_c_theme',th);
-});
+/* тема — подхватывается из Суфлёра (общее хранилище) */
+(function(){
+  var t='dark';
+  try{ var cfg=JSON.parse(sGet('sf_cfg_v1')||'{}'); if(cfg.theme) t=cfg.theme; }catch(e){}
+  if(t!=='dark') document.documentElement.setAttribute('data-theme',t);
+})();
 
 if(!storageOK) toast('Внимание: браузер не сохраняет черновик — не закрывай вкладку, пока не скачаешь файл');
 

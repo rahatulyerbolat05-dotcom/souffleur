@@ -1,12 +1,13 @@
-/* Суфлёр — офлайн-кэш v5
+/* Суфлёр — офлайн-кэш v6
    Стратегии:
    - index.html / sborshik.html / навигация → СНАЧАЛА СЕТЬ, офлайн — из кэша.
      Обновления приложения теперь доезжают сами, без смены версии кэша.
    - songs.json → сначала сеть (свежий каталог), офлайн — из кэша.
-   - иконки/манифест → сначала кэш (не меняются).
+   - иконки/манифест/фотообои → сначала кэш (не меняются).
 */
-var CACHE='souffleur-v5';
-var PRECACHE=['./','./index.html','./manifest.json','./icon-180.png','./icon-512.png','./sborshik.html','./songs.json'];
+var CACHE='souffleur-v6';
+var PRECACHE=['./','./index.html','./manifest.json','./icon-180.png','./icon-512.png','./sborshik.html','./songs.json',
+  './wp_manor.jpg','./wp_lagoon.jpg','./wp_dusk.jpg','./wp_vangogh.jpg','./wp_barkhan.jpg','./wp_mirage.jpg','./wp_bloom.jpg'];
 
 self.addEventListener('install',function(e){
   e.waitUntil(

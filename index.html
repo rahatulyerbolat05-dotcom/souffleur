@@ -226,6 +226,124 @@ html[data-theme="pastel"]{
   --play:#2e8b57; --danger:#c8372c; --tag:#4a76d0;
   --accent-2:#4a3f33; --glow:23,19,16;
 }
+
+/* ============ ФОТООБОИ — 7 тем на живых снимках ============
+   Снимок лежит НЕПОДВИЖНЫМ слоем под всем интерфейсом (fixed),
+   контент прокручивается поверх на полупрозрачном стекле —
+   поэтому бесшовность фото не нужна, ничего не «едет». */
+html[data-theme^="wp-"]{background-color:var(--bg);}
+html[data-theme^="wp-"]::before{
+  content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background-image:var(--veil),var(--wp);
+  background-size:cover;
+  background-position:center,var(--wp-pos,center);
+  background-repeat:no-repeat;
+}
+html[data-theme^="wp-"] body{background:none;}
+/* сцена: плотная вуаль ради читаемости текста, фото угадывается сквозь неё */
+html[data-theme^="wp-"] #viewStage{background:var(--stage-veil);}
+/* панели-стекло поверх фото чуть плотнее обычного */
+html[data-theme^="wp-"] .speedwrap{background:var(--glass);
+  -webkit-backdrop-filter:blur(18px) saturate(170%);backdrop-filter:blur(18px) saturate(170%);}
+/* заголовки секций на пёстром фото — на тон контрастнее */
+html[data-theme^="wp-"] .sect{color:var(--ink-soft);}
+
+/* «Особняк» — ч/б лестница, графитовый монохром */
+html[data-theme="wp-manor"]{
+  --wp:url("wp_manor.jpg");
+  --veil:linear-gradient(rgba(244,244,244,.55),rgba(244,244,244,.55));
+  --stage-veil:rgba(246,246,246,.84);
+  --tex:none; --tex-size:auto;
+  --glass:rgba(240,240,240,.62); --glass-line:rgba(30,30,34,.13);
+  --bg:#ececec; --bg-2:#e2e2e2; --card:rgba(255,255,255,.78); --card-2:rgba(246,246,246,.85);
+  --line:rgba(60,60,66,.17); --ink:#1d1d1f; --ink-soft:#55555c; --ink-faint:#8e8e94;
+  --accent:#2b2b30; --accent-ink:#ffffff; --accent-sl:rgba(43,43,48,.1);
+  --berry:#7d5a94; --berry-sl:#ece2f4; --green:#1f8a4c; --green-sl:#e0f2e7;
+  --play:#1f8a4c; --danger:#c8372c; --tag:#46639b;
+  --accent-2:#55555c; --glow:43,43,48;
+}
+/* «Лагуна» — зелёная вода с бликами */
+html[data-theme="wp-lagoon"]{
+  --wp:url("wp_lagoon.jpg");
+  --veil:linear-gradient(rgba(232,240,224,.42),rgba(232,240,224,.42));
+  --stage-veil:rgba(238,244,232,.84);
+  --tex:none; --tex-size:auto;
+  --glass:rgba(236,243,229,.6); --glass-line:rgba(34,64,42,.13);
+  --bg:#dde8d4; --bg-2:#d2dfc6; --card:rgba(255,255,255,.75); --card-2:rgba(247,251,243,.82);
+  --line:rgba(44,74,52,.18); --ink:#1c2b1e; --ink-soft:#4c6350; --ink-faint:#84977d;
+  --accent:#2e6b4f; --accent-ink:#ffffff; --accent-sl:rgba(46,107,79,.13);
+  --berry:#b0486e; --berry-sl:#f7e2ea; --green:#1f8a4c; --green-sl:#def0e2;
+  --play:#16794a; --danger:#c8372c; --tag:#2f6fa8;
+  --accent-2:#4f9673; --glow:46,107,79;
+}
+/* «Сумерки» — школьный двор, серо-синий вечер и тёплый фонарь */
+html[data-theme="wp-dusk"]{
+  --wp:url("wp_dusk.jpg");
+  --veil:linear-gradient(rgba(26,30,36,.62),rgba(24,28,34,.66));
+  --stage-veil:rgba(24,28,33,.82);
+  --tex:none; --tex-size:auto;
+  --glass:rgba(20,24,29,.6); --glass-line:rgba(255,255,255,.1);
+  --bg:#23282e; --bg-2:#1d2126; --card:rgba(36,42,50,.72); --card-2:rgba(46,53,62,.8);
+  --line:rgba(255,255,255,.14); --ink:#eef1f4; --ink-soft:#a6afb8; --ink-faint:#6a747c;
+  --accent:#ffb054; --accent-ink:#221604; --accent-sl:rgba(255,176,84,.16);
+  --play:#7ee0a3; --danger:#ff7a70; --tag:#8ec1ff;
+  --accent-2:#ff8f3d; --glow:255,176,84;
+}
+/* «Ван Гог» — «Пшеничное поле с кипарисами», кобальт и пшеница */
+html[data-theme="wp-vangogh"]{
+  --wp:url("wp_vangogh.jpg"); --wp-pos:64% 50%;
+  --veil:linear-gradient(rgba(240,238,222,.5),rgba(240,238,222,.5));
+  --stage-veil:rgba(243,241,228,.85);
+  --tex:none; --tex-size:auto;
+  --glass:rgba(240,238,224,.62); --glass-line:rgba(50,50,32,.13);
+  --bg:#e6e4d2; --bg-2:#dcd9c2; --card:rgba(255,254,246,.78); --card-2:rgba(250,249,240,.85);
+  --line:rgba(60,60,40,.18); --ink:#23241c; --ink-soft:#5c5d48; --ink-faint:#94957e;
+  --accent:#2a5db0; --accent-ink:#ffffff; --accent-sl:rgba(42,93,176,.12);
+  --berry:#a8842a; --berry-sl:#f2e8c8; --green:#1f8a4c; --green-sl:#e0f2e7;
+  --play:#1f8a4c; --danger:#c8372c; --tag:#2e7d4f;
+  --accent-2:#5b82d8; --glow:42,93,176;
+}
+/* «Бархан» — золотые дюны под ярко-синим небом */
+html[data-theme="wp-barkhan"]{
+  --wp:url("wp_barkhan.jpg");
+  --veil:linear-gradient(rgba(248,238,222,.35),rgba(248,238,222,.4));
+  --stage-veil:rgba(248,240,226,.86);
+  --tex:none; --tex-size:auto;
+  --glass:rgba(250,242,228,.6); --glass-line:rgba(70,48,22,.13);
+  --bg:#e8d9c0; --bg-2:#dfcdae; --card:rgba(255,250,240,.78); --card-2:rgba(250,244,234,.85);
+  --line:rgba(80,55,25,.18); --ink:#241a10; --ink-soft:#6b5335; --ink-faint:#a08b6d;
+  --accent:#b05e12; --accent-ink:#ffffff; --accent-sl:rgba(176,94,18,.13);
+  --berry:#a8552c; --berry-sl:#f5e0d4; --green:#1f8a4c; --green-sl:#e0f2e7;
+  --play:#1f8a4c; --danger:#c8372c; --tag:#1268a8;
+  --accent-2:#d9873b; --glow:176,94,18;
+}
+/* «Мираж» — дюны на закате, светящееся янтарное небо */
+html[data-theme="wp-mirage"]{
+  --wp:url("wp_mirage.jpg");
+  --veil:linear-gradient(rgba(20,15,6,.66),rgba(18,13,5,.5) 55%,rgba(10,8,4,.56));
+  --stage-veil:rgba(18,14,6,.8);
+  --tex:none; --tex-size:auto;
+  --glass:rgba(22,17,8,.62); --glass-line:rgba(255,220,150,.12);
+  --bg:#191307; --bg-2:#141006; --card:rgba(30,24,12,.7); --card-2:rgba(40,32,17,.78);
+  --line:rgba(255,220,150,.15); --ink:#f7efdc; --ink-soft:#c2b391; --ink-faint:#7d7154;
+  --accent:#ffa63d; --accent-ink:#241604; --accent-sl:rgba(255,166,61,.15);
+  --play:#7ee0a3; --danger:#ff8a70; --tag:#ffd479;
+  --accent-2:#ff8f3d; --glow:255,166,61;
+}
+/* «Цветение» — пастельные цветы в расфокусе */
+html[data-theme="wp-bloom"]{
+  --wp:url("wp_bloom.jpg");
+  --veil:linear-gradient(rgba(250,242,238,.45),rgba(250,242,238,.45));
+  --stage-veil:rgba(250,244,240,.86);
+  --tex:none; --tex-size:auto;
+  --glass:rgba(250,243,239,.62); --glass-line:rgba(80,45,40,.12);
+  --bg:#f3e8e2; --bg-2:#ecdcd4; --card:rgba(255,252,250,.78); --card-2:rgba(252,247,244,.85);
+  --line:rgba(90,55,50,.16); --ink:#33231f; --ink-soft:#7a5f58; --ink-faint:#ab938c;
+  --accent:#bb4265; --accent-ink:#ffffff; --accent-sl:rgba(187,66,101,.11);
+  --berry:#d2588a; --berry-sl:#f9dfe9; --green:#1f8a4c; --green-sl:#e0f2e7;
+  --play:#1f8a4c; --danger:#b23a2e; --tag:#8a5fb0;
+  --accent-2:#e0688c; --glow:187,66,101;
+}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{margin:0;padding:0;}
 html{height:100%;}
@@ -440,6 +558,16 @@ html[data-theme="light"] .fb[data-fmt="Финал"],html[data-theme="sepia"] .fb
 .lyrics .tagline{display:block;width:max-content;max-width:100%;font-size:.62em;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
   color:var(--tag);background:rgba(142,193,255,.12);border-radius:8px;padding:2px 10px;margin:14px 0 6px;}
 html[data-theme="light"] .lyrics .tagline{background:rgba(47,111,208,.1);}
+/* светлые фотообои: те же светлые адаптации, что у «Крема» */
+html:is([data-theme="wp-manor"],[data-theme="wp-lagoon"],[data-theme="wp-vangogh"],[data-theme="wp-barkhan"],[data-theme="wp-bloom"]) .lyrics .tagline{background:rgba(47,111,208,.1);}
+html:is([data-theme="wp-manor"],[data-theme="wp-lagoon"],[data-theme="wp-vangogh"],[data-theme="wp-barkhan"],[data-theme="wp-bloom"]) .warnbox{background:#fbe3d4;border-color:#e0956a;color:#7a3c14;}
+html:is([data-theme="wp-manor"],[data-theme="wp-lagoon"],[data-theme="wp-vangogh"],[data-theme="wp-barkhan"],[data-theme="wp-bloom"]) .warnbox b{color:#5e2c0a;}
+html:is([data-theme="wp-manor"],[data-theme="wp-lagoon"],[data-theme="wp-vangogh"],[data-theme="wp-barkhan"],[data-theme="wp-bloom"]) .fb[data-fmt="Куплет"]{color:#b06a10;}
+html:is([data-theme="wp-manor"],[data-theme="wp-lagoon"],[data-theme="wp-vangogh"],[data-theme="wp-barkhan"],[data-theme="wp-bloom"]) .fb[data-fmt="Припев"]{color:#c23a68;}
+html:is([data-theme="wp-manor"],[data-theme="wp-lagoon"],[data-theme="wp-vangogh"],[data-theme="wp-barkhan"],[data-theme="wp-bloom"]) .fb[data-fmt="Бридж"]{color:#2e6cb8;}
+html:is([data-theme="wp-manor"],[data-theme="wp-lagoon"],[data-theme="wp-vangogh"],[data-theme="wp-barkhan"],[data-theme="wp-bloom"]) .fb[data-fmt="Интро"]{color:#237a48;}
+html:is([data-theme="wp-manor"],[data-theme="wp-lagoon"],[data-theme="wp-vangogh"],[data-theme="wp-barkhan"],[data-theme="wp-bloom"]) .fb[data-fmt="Предприпев"]{color:#6a4bb0;}
+html:is([data-theme="wp-manor"],[data-theme="wp-lagoon"],[data-theme="wp-vangogh"],[data-theme="wp-barkhan"],[data-theme="wp-bloom"]) .fb[data-fmt="Финал"]{color:#b23a2e;}
 .lyrics .blank{display:block;height:.6em;}
 
 /* стрелки-зоны листания по краям убраны в пользу нижней панели + свайпов */
@@ -585,7 +713,7 @@ html.themefade, html.themefade *{ transition:background-color .45s ease, color .
 .tsw.on{border-color:var(--accent);color:var(--ink);}
 .tsw .dot{width:100%;height:34px;border-radius:9px;border:1px solid rgba(255,255,255,.14);position:relative;overflow:hidden;}
 .tsw .dot::after{content:"";position:absolute;left:10%;top:52%;width:80%;height:5px;border-radius:3px;background:var(--sw-acc);}
-.tsw .dot{background:var(--sw-bg);}
+.tsw .dot{background:var(--sw-bg);background-size:cover;background-position:center;}
 @media (max-width:400px){ .themegrid{grid-template-columns:repeat(4,1fr);} .tsw{font-size:10.5px;} }
 
 /* переключатель темы в шапке главной */
@@ -1041,7 +1169,14 @@ var THEMES=[
   {id:'dune',      name:'Дюна',      g:'l', bg:'#f4eee1', acc:'#d9a441'},
   {id:'aura',      name:'Аура',      g:'l', bg:'#eaeefa', acc:'#6a5ae0'},
   {id:'orange',    name:'Оранж',     g:'l', bg:'#efe7db', acc:'#ff7a1a'},
-  {id:'pastel',    name:'Пастель',   g:'l', bg:'#f7f1e4', acc:'#f08cb4'}
+  {id:'pastel',    name:'Пастель',   g:'l', bg:'#f7f1e4', acc:'#f08cb4'},
+  {id:'wp-mirage', name:'Мираж',     g:'w', bg:'#191307', acc:'#ffa63d', wp:'wp_mirage.jpg'},
+  {id:'wp-dusk',   name:'Сумерки',   g:'w', bg:'#23282e', acc:'#ffb054', wp:'wp_dusk.jpg'},
+  {id:'wp-barkhan',name:'Бархан',    g:'w', bg:'#e8d9c0', acc:'#b05e12', wp:'wp_barkhan.jpg'},
+  {id:'wp-lagoon', name:'Лагуна',    g:'w', bg:'#dde8d4', acc:'#2e6b4f', wp:'wp_lagoon.jpg'},
+  {id:'wp-vangogh',name:'Ван Гог',   g:'w', bg:'#e6e4d2', acc:'#2a5db0', wp:'wp_vangogh.jpg'},
+  {id:'wp-bloom',  name:'Цветение',  g:'w', bg:'#f3e8e2', acc:'#bb4265', wp:'wp_bloom.jpg'},
+  {id:'wp-manor',  name:'Особняк',   g:'w', bg:'#ececec', acc:'#2b2b30', wp:'wp_manor.jpg'}
 ];
 function themeMeta(id){ for(var i=0;i<THEMES.length;i++) if(THEMES[i].id===id) return THEMES[i]; return THEMES[0]; }
 function applyTheme(){
@@ -1054,14 +1189,15 @@ function applyTheme(){
 function renderThemeGrid(){
   var host=$('themeGrid'); host.innerHTML='';
   var cur=cfg.theme||'dark';
-  [['d','Тёмные — для сцены'],['l','Светлые — для репетиций']].forEach(function(gr){
+  [['d','Тёмные — для сцены'],['l','Светлые — для репетиций'],['w','Фотообои']].forEach(function(gr){
     var h=document.createElement('div'); h.className='tgroup'; h.textContent=gr[1];
     host.appendChild(h);
     var wrap=document.createElement('div'); wrap.className='themegrid-row';
     THEMES.filter(function(t){return t.g===gr[0];}).forEach(function(t){
       var b=document.createElement('button');
       b.type='button'; b.className='tsw'+(t.id===cur?' on':''); b.setAttribute('data-theme-id',t.id);
-      b.innerHTML='<span class="dot" style="--sw-bg:'+t.bg+';--sw-acc:'+t.acc+'"></span>'+t.name;
+      var ph=t.wp?';background-image:url('+t.wp+')':'';
+      b.innerHTML='<span class="dot" style="--sw-bg:'+t.bg+';--sw-acc:'+t.acc+ph+'"></span>'+t.name;
       wrap.appendChild(b);
     });
     host.appendChild(wrap);
