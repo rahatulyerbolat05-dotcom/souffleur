@@ -544,7 +544,13 @@ html[data-theme="light"] .fb[data-fmt="Финал"],html[data-theme="sepia"] .fb
 /* поиск */
 .search{position:relative;margin-bottom:12px;}
 .search .isv{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:var(--ink-faint);pointer-events:none;}
-.search input{padding-left:40px;}
+.search input{padding-left:40px;padding-right:46px;}
+/* крестик очистки поиска */
+.clrx{position:absolute;right:7px;top:50%;transform:translateY(-50%);width:32px;height:32px;border:0;border-radius:50%;
+  background:var(--card-2);color:var(--ink-soft);display:none;align-items:center;justify-content:center;padding:0;}
+.clrx svg{width:15px;height:15px;stroke:currentColor;stroke-width:2.4;fill:none;stroke-linecap:round;}
+.clrx.show{display:flex;}
+.clrx:active{transform:translateY(-50%) scale(.88);color:var(--ink);}
 
 /* чекбокс-ряды выбора песен в сэт */
 .pickrow{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);
@@ -644,8 +650,8 @@ html:is([data-theme="wp-manor"],[data-theme="wp-lagoon"],[data-theme="wp-vangogh
 .setsheet.show .dim{opacity:1;}
 .setsheet.show .panel{transform:translateX(0);}
 .setsheet h3{margin:0 0 12px;font-size:15px;font-weight:800;}
-.setsheet .sheetsearch{display:none;margin:0 0 10px;}
-.setsheet .sheetsearch input{width:100%;font-size:16px;color:var(--ink);background:var(--card);
+.setsheet .sheetsearch{display:none;margin:0 0 10px;position:relative;}
+.setsheet .sheetsearch input{width:100%;font-size:16px;color:var(--ink);background:var(--card);padding-right:46px;
   border:1.5px solid var(--line);border-radius:11px;padding:10px 12px;-webkit-appearance:none;appearance:none;}
 .setsheet .sheetsearch input:focus{border-color:var(--accent);outline:none;}
 .setsheet .sheetsearch.show{display:block;}
@@ -1567,6 +1573,7 @@ function openSetEditor(id){
   draftIds=st?st.songIds.slice().filter(songById):[];
   $('delSetRow').style.display=st?'':'none';
   setQuery=''; $('setSongSearch').value='';
+  if($('setSongSearch')._clrSync) $('setSongSearch')._clrSync();
   renderSetEditor();
   show('Set');
 }
@@ -1814,6 +1821,7 @@ $('stageList').addEventListener('click',function(){
   /* поиск полезен, когда песен в сэте много */
   $('sheetSearchWrap').classList.toggle('show', stageSet.ids.length>12);
   $('sheetSearch').value='';
+  if($('sheetSearch')._clrSync) $('sheetSearch')._clrSync();
   renderSheetRows('');
   $('setSheet').classList.add('show');
   /* докрутить шторку к текущей песне */
@@ -1823,6 +1831,25 @@ $('stageList').addEventListener('click',function(){
   },80);
 });
 $('sheetSearch').addEventListener('input',function(){ renderSheetRows(this.value); });
+
+/* крестик очистки во всех полях поиска */
+function attachClear(inp,onClear){
+  var b=document.createElement('button');
+  b.type='button'; b.className='clrx'; b.setAttribute('aria-label','Очистить поиск');
+  b.innerHTML='<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+  inp.parentNode.appendChild(b);
+  function sync(){ b.classList.toggle('show', !!inp.value); }
+  inp.addEventListener('input',sync);
+  b.addEventListener('pointerdown',function(e){
+    e.preventDefault();               /* не красть фокус у поля — клавиатура не мигает */
+    inp.value=''; onClear(); sync(); inp.focus();
+  });
+  inp._clrSync=sync;
+  sync();
+}
+attachClear($('songSearch'),   function(){ songQuery='';  renderCatalog();   });
+attachClear($('setSongSearch'),function(){ setQuery='';   renderSetEditor(); });
+attachClear($('sheetSearch'),  function(){ renderSheetRows(''); });
 $('setSheetDim').addEventListener('click',function(){ $('setSheet').classList.remove('show'); });
 $('sheetRows').addEventListener('click',function(e){
   var el=e.target.closest('[data-jump]'); if(!el) return;
