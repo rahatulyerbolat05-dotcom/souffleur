@@ -245,17 +245,40 @@ html[data-theme^="wp-"] #viewStage{background:var(--stage-veil);}
 /* панели-стекло поверх фото чуть плотнее обычного */
 html[data-theme^="wp-"] .speedwrap{background:var(--glass);
   -webkit-backdrop-filter:blur(18px) saturate(170%);backdrop-filter:blur(18px) saturate(170%);}
-/* заголовки секций на пёстром фото — на тон контрастнее */
-html[data-theme^="wp-"] .sect{color:var(--ink-soft);}
+/* заголовки секций — стеклянная пилюля, читается на любом фото */
+html[data-theme^="wp-"] .sect{color:var(--ink-soft);background:var(--glass);
+  width:max-content;max-width:100%;padding:4px 11px;border-radius:9px;border:1px solid var(--glass-line);}
+/* «Новый сэт» и пустые состояния — лёгкое стекло вместо голого фото */
+html[data-theme^="wp-"] .addtile,html[data-theme^="wp-"] .empty{background:var(--glass);
+  -webkit-backdrop-filter:blur(10px) saturate(150%);backdrop-filter:blur(10px) saturate(150%);}
+/* заголовки прямо на фото — мягкое свечение в тон вуали */
+html:is([data-theme="wp-manor"],[data-theme="wp-lagoon"],[data-theme="wp-vangogh"],[data-theme="wp-barkhan"],[data-theme="wp-bloom"]) :is(.hero h1,.hero p,.tophead h1,.subtitle){
+  text-shadow:0 1px 2px rgba(255,255,255,.55),0 0 16px rgba(255,255,255,.65);}
+html:is([data-theme="wp-dusk"],[data-theme="wp-mirage"]) :is(.hero h1,.hero p,.tophead h1,.subtitle){
+  text-shadow:0 1px 3px rgba(0,0,0,.55),0 0 16px rgba(0,0,0,.5);}
+/* редактор: панель формата — плотное стекло, кнопки — непрозрачные */
+html[data-theme^="wp-"] .fmtbar{background:var(--glass);border:1px solid var(--glass-line);
+  border-radius:16px;padding:9px;
+  -webkit-backdrop-filter:blur(16px) saturate(160%);backdrop-filter:blur(16px) saturate(160%);}
+html[data-theme^="wp-"] .fmtrow .fb{background:var(--wpbtn);}
+html[data-theme^="wp-"] .fmtrow .fb[data-fmt="Куплет"]{background:color-mix(in srgb,#e8963f 16%,var(--wpbtn));}
+html[data-theme^="wp-"] .fmtrow .fb[data-fmt="Припев"]{background:color-mix(in srgb,#ec5f8a 16%,var(--wpbtn));}
+html[data-theme^="wp-"] .fmtrow .fb[data-fmt="Бридж"]{background:color-mix(in srgb,#5f9fe8 16%,var(--wpbtn));}
+html[data-theme^="wp-"] .fmtrow .fb[data-fmt="Интро"]{background:color-mix(in srgb,#58b97c 16%,var(--wpbtn));}
+html[data-theme^="wp-"] .fmtrow .fb[data-fmt="Предприпев"]{background:color-mix(in srgb,#a98fdc 16%,var(--wpbtn));}
+html[data-theme^="wp-"] .fmtrow .fb[data-fmt="Финал"]{background:color-mix(in srgb,#e86a5f 16%,var(--wpbtn));}
+/* подсказка редактора на фото — стеклянная карточка */
+html[data-theme^="wp-"] .fmthint{background:var(--glass);border:1px solid var(--glass-line);
+  border-radius:12px;padding:9px 12px;color:var(--ink-soft);}
 
 /* «Особняк» — ч/б лестница, графитовый монохром */
 html[data-theme="wp-manor"]{
-  --wp:url("wp_manor.jpg");
-  --veil:linear-gradient(rgba(244,244,244,.55),rgba(244,244,244,.55));
+  --wp:url("wp_manor.jpg"); --wpbtn:#ffffff;
+  --veil:linear-gradient(rgba(244,244,244,.3),rgba(244,244,244,.3));
   --stage-veil:rgba(246,246,246,.84);
   --tex:none; --tex-size:auto;
   --glass:rgba(240,240,240,.62); --glass-line:rgba(30,30,34,.13);
-  --bg:#ececec; --bg-2:#e2e2e2; --card:rgba(255,255,255,.78); --card-2:rgba(246,246,246,.85);
+  --bg:#ececec; --bg-2:#e2e2e2; --card:rgba(255,255,255,.86); --card-2:rgba(248,248,248,.93);
   --line:rgba(60,60,66,.17); --ink:#1d1d1f; --ink-soft:#55555c; --ink-faint:#8e8e94;
   --accent:#2b2b30; --accent-ink:#ffffff; --accent-sl:rgba(43,43,48,.1);
   --berry:#7d5a94; --berry-sl:#ece2f4; --green:#1f8a4c; --green-sl:#e0f2e7;
@@ -264,12 +287,12 @@ html[data-theme="wp-manor"]{
 }
 /* «Лагуна» — зелёная вода с бликами */
 html[data-theme="wp-lagoon"]{
-  --wp:url("wp_lagoon.jpg");
-  --veil:linear-gradient(rgba(232,240,224,.42),rgba(232,240,224,.42));
+  --wp:url("wp_lagoon.jpg"); --wpbtn:#ffffff;
+  --veil:linear-gradient(rgba(232,240,224,.22),rgba(232,240,224,.22));
   --stage-veil:rgba(238,244,232,.84);
   --tex:none; --tex-size:auto;
   --glass:rgba(236,243,229,.6); --glass-line:rgba(34,64,42,.13);
-  --bg:#dde8d4; --bg-2:#d2dfc6; --card:rgba(255,255,255,.75); --card-2:rgba(247,251,243,.82);
+  --bg:#dde8d4; --bg-2:#d2dfc6; --card:rgba(255,255,255,.85); --card-2:rgba(250,253,247,.93);
   --line:rgba(44,74,52,.18); --ink:#1c2b1e; --ink-soft:#4c6350; --ink-faint:#84977d;
   --accent:#2e6b4f; --accent-ink:#ffffff; --accent-sl:rgba(46,107,79,.13);
   --berry:#b0486e; --berry-sl:#f7e2ea; --green:#1f8a4c; --green-sl:#def0e2;
@@ -278,12 +301,12 @@ html[data-theme="wp-lagoon"]{
 }
 /* «Сумерки» — школьный двор, серо-синий вечер и тёплый фонарь */
 html[data-theme="wp-dusk"]{
-  --wp:url("wp_dusk.jpg");
-  --veil:linear-gradient(rgba(26,30,36,.62),rgba(24,28,34,.66));
+  --wp:url("wp_dusk.jpg"); --wpbtn:#333b45;
+  --veil:linear-gradient(rgba(26,30,36,.5),rgba(24,28,34,.56));
   --stage-veil:rgba(24,28,33,.82);
   --tex:none; --tex-size:auto;
   --glass:rgba(20,24,29,.6); --glass-line:rgba(255,255,255,.1);
-  --bg:#23282e; --bg-2:#1d2126; --card:rgba(36,42,50,.72); --card-2:rgba(46,53,62,.8);
+  --bg:#23282e; --bg-2:#1d2126; --card:rgba(36,42,50,.8); --card-2:rgba(48,56,66,.88);
   --line:rgba(255,255,255,.14); --ink:#eef1f4; --ink-soft:#a6afb8; --ink-faint:#6a747c;
   --accent:#ffb054; --accent-ink:#221604; --accent-sl:rgba(255,176,84,.16);
   --play:#7ee0a3; --danger:#ff7a70; --tag:#8ec1ff;
@@ -291,12 +314,12 @@ html[data-theme="wp-dusk"]{
 }
 /* «Ван Гог» — «Пшеничное поле с кипарисами», кобальт и пшеница */
 html[data-theme="wp-vangogh"]{
-  --wp:url("wp_vangogh.jpg"); --wp-pos:64% 50%;
-  --veil:linear-gradient(rgba(240,238,222,.5),rgba(240,238,222,.5));
+  --wp:url("wp_vangogh.jpg"); --wp-pos:64% 50%; --wpbtn:#fffef8;
+  --veil:linear-gradient(rgba(240,238,222,.28),rgba(240,238,222,.28));
   --stage-veil:rgba(243,241,228,.85);
   --tex:none; --tex-size:auto;
   --glass:rgba(240,238,224,.62); --glass-line:rgba(50,50,32,.13);
-  --bg:#e6e4d2; --bg-2:#dcd9c2; --card:rgba(255,254,246,.78); --card-2:rgba(250,249,240,.85);
+  --bg:#e6e4d2; --bg-2:#dcd9c2; --card:rgba(255,254,246,.86); --card-2:rgba(252,251,244,.93);
   --line:rgba(60,60,40,.18); --ink:#23241c; --ink-soft:#5c5d48; --ink-faint:#94957e;
   --accent:#2a5db0; --accent-ink:#ffffff; --accent-sl:rgba(42,93,176,.12);
   --berry:#a8842a; --berry-sl:#f2e8c8; --green:#1f8a4c; --green-sl:#e0f2e7;
@@ -305,12 +328,12 @@ html[data-theme="wp-vangogh"]{
 }
 /* «Бархан» — золотые дюны под ярко-синим небом */
 html[data-theme="wp-barkhan"]{
-  --wp:url("wp_barkhan.jpg");
-  --veil:linear-gradient(rgba(248,238,222,.35),rgba(248,238,222,.4));
+  --wp:url("wp_barkhan.jpg"); --wpbtn:#fffaf0;
+  --veil:linear-gradient(rgba(248,238,222,.18),rgba(248,238,222,.24));
   --stage-veil:rgba(248,240,226,.86);
   --tex:none; --tex-size:auto;
   --glass:rgba(250,242,228,.6); --glass-line:rgba(70,48,22,.13);
-  --bg:#e8d9c0; --bg-2:#dfcdae; --card:rgba(255,250,240,.78); --card-2:rgba(250,244,234,.85);
+  --bg:#e8d9c0; --bg-2:#dfcdae; --card:rgba(255,250,240,.86); --card-2:rgba(252,247,239,.93);
   --line:rgba(80,55,25,.18); --ink:#241a10; --ink-soft:#6b5335; --ink-faint:#a08b6d;
   --accent:#b05e12; --accent-ink:#ffffff; --accent-sl:rgba(176,94,18,.13);
   --berry:#a8552c; --berry-sl:#f5e0d4; --green:#1f8a4c; --green-sl:#e0f2e7;
@@ -319,12 +342,12 @@ html[data-theme="wp-barkhan"]{
 }
 /* «Мираж» — дюны на закате, светящееся янтарное небо */
 html[data-theme="wp-mirage"]{
-  --wp:url("wp_mirage.jpg");
+  --wp:url("wp_mirage.jpg"); --wpbtn:#2f2614;
   --veil:linear-gradient(rgba(20,15,6,.66),rgba(18,13,5,.5) 55%,rgba(10,8,4,.56));
   --stage-veil:rgba(18,14,6,.8);
   --tex:none; --tex-size:auto;
   --glass:rgba(22,17,8,.62); --glass-line:rgba(255,220,150,.12);
-  --bg:#191307; --bg-2:#141006; --card:rgba(30,24,12,.7); --card-2:rgba(40,32,17,.78);
+  --bg:#191307; --bg-2:#141006; --card:rgba(30,24,12,.76); --card-2:rgba(42,34,18,.85);
   --line:rgba(255,220,150,.15); --ink:#f7efdc; --ink-soft:#c2b391; --ink-faint:#7d7154;
   --accent:#ffa63d; --accent-ink:#241604; --accent-sl:rgba(255,166,61,.15);
   --play:#7ee0a3; --danger:#ff8a70; --tag:#ffd479;
@@ -332,12 +355,12 @@ html[data-theme="wp-mirage"]{
 }
 /* «Цветение» — пастельные цветы в расфокусе */
 html[data-theme="wp-bloom"]{
-  --wp:url("wp_bloom.jpg");
-  --veil:linear-gradient(rgba(250,242,238,.45),rgba(250,242,238,.45));
+  --wp:url("wp_bloom.jpg"); --wpbtn:#ffffff;
+  --veil:linear-gradient(rgba(250,242,238,.24),rgba(250,242,238,.24));
   --stage-veil:rgba(250,244,240,.86);
   --tex:none; --tex-size:auto;
   --glass:rgba(250,243,239,.62); --glass-line:rgba(80,45,40,.12);
-  --bg:#f3e8e2; --bg-2:#ecdcd4; --card:rgba(255,252,250,.78); --card-2:rgba(252,247,244,.85);
+  --bg:#f3e8e2; --bg-2:#ecdcd4; --card:rgba(255,252,250,.86); --card-2:rgba(253,249,246,.93);
   --line:rgba(90,55,50,.16); --ink:#33231f; --ink-soft:#7a5f58; --ink-faint:#ab938c;
   --accent:#bb4265; --accent-ink:#ffffff; --accent-sl:rgba(187,66,101,.11);
   --berry:#d2588a; --berry-sl:#f9dfe9; --green:#1f8a4c; --green-sl:#e0f2e7;
@@ -357,6 +380,16 @@ body{
   min-height:100vh; min-height:100dvh;
   overscroll-behavior:none;             /* без резиновых отскоков на сцене */
 }
+/* стабильная полоса прокрутки: переходы между экранами не дёргаются (десктоп) */
+html{overflow-y:scroll;}
+@supports (scrollbar-gutter:stable){ html{overflow-y:auto;scrollbar-gutter:stable;} }
+/* тонкий скроллбар в цвет темы */
+html{scrollbar-width:thin;scrollbar-color:var(--ink-faint) transparent;}
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--ink-faint);border-radius:8px;border:3px solid transparent;background-clip:padding-box;}
+::-webkit-scrollbar-thumb:hover{background:var(--ink-soft);}
+::-webkit-scrollbar-corner{background:transparent;}
 button,input,textarea,select{font-family:inherit;touch-action:manipulation;}
 button{cursor:pointer;}
 :focus-visible{outline:2.5px solid var(--accent);outline-offset:2px;border-radius:8px;}
